@@ -12,12 +12,13 @@ from .base import Problem, gk
 
 class FearnheadGKProblem(Problem):
     def get_model(self) -> Callable:
-        ixs = np.linspace(0, 1000, 102, dtype=int)[1:-1]
+        n_sample = 10000
+        ixs = np.linspace(0, n_sample, 102, dtype=int)[1:-1]
 
         def model(p):
             A, B, g, k = [p[key] for key in ["A", "B", "g", "k"]]
             c = 0.8
-            vals = gk(A=A, B=B, c=c, g=g, k=k, n=10000)
+            vals = gk(A=A, B=B, c=c, g=g, k=k, n=n_sample)
             ordered = np.sort(vals)
             subset = ordered[ixs]
             return {"y": subset}
@@ -43,7 +44,7 @@ class FearnheadGKProblem(Problem):
 
     def get_sumstat(self) -> pyabc.Sumstat:
         return pyabc.IdentitySumstat(
-            trafos=[lambda x: x, lambda x: x ** 2, lambda x: x ** 3, lambda x: x ** 4]
+            trafos=[lambda x: x, lambda x: x ** 2, lambda x: x ** 3, lambda x: x ** 4],
         )
 
     def get_ana_args(self) -> Dict[str, Any]:
