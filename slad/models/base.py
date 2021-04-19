@@ -71,6 +71,7 @@ class CoreProblem(Problem):
                 + self.std2 * np.sqrt(self.n2) * np.random.normal(size=self.n2),
                 "s3": 0.5
                 + self.std3 * np.sqrt(self.n3) * np.random.normal(size=self.n3),
+                # "s4": 0,
             }
 
         return model
@@ -79,7 +80,7 @@ class CoreProblem(Problem):
         return Distribution(
             p0=RV("uniform", 0, self.ub0),
             p1=RV("uniform", 0, self.ub1),
-            p2=RV("uniform", 0, 1),
+            # p2=RV("uniform", 0, 1),
         )
 
     def get_prior_bounds(self) -> dict:
@@ -94,16 +95,26 @@ class CoreProblem(Problem):
                 max(gt_par["p1"] - s * self.std1, 0),
                 min(gt_par["p1"] + s * self.std1, self.ub1),
             ),
-            "p2": (0, 1),
+            # "p2": (0, 1),
         }
         # return {'p0': (0, self.ub0), 'p1': (0, self.ub1)}
 
     def get_gt_par(self) -> dict:
-        return {"p0": 0.4 * self.ub0, "p1": 0.4 * self.ub1, "p2": 0.5}
+        return {
+            "p0": 0.4 * self.ub0,
+            "p1": 0.4 * self.ub1,
+            # "p2": 0.5,
+        }
 
     def get_obs(self) -> dict:
         gt_par = self.get_gt_par()
-        return {"s0": gt_par["p0"], "s1": gt_par["p1"], "s2": 500, "s3": 0.5}
+        return {
+            "s0": gt_par["p0"],
+            "s1": gt_par["p1"],
+            "s2": 500,
+            "s3": 0.5,
+            # "s4": 0,
+        }
 
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 1000, "max_total_nr_simulations": 50000}
