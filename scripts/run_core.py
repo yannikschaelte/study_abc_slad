@@ -1,4 +1,3 @@
-import argparse
 import os
 import numpy as np
 
@@ -11,6 +10,7 @@ from pyabc.predictor import *
 
 # read cmd line arguments
 host, port = slad.read_args()
+print(f"Python script with host={host}, port={port}")
 
 # load problem
 problem = slad.CoreProblem()
