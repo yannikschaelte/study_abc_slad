@@ -92,14 +92,14 @@ for i_rep in range(n_rep):
             continue
         if isinstance(distance, AdaptivePNormDistance):
             distance.scale_log_file = os.path.join(
-                data_dir, f"log_scale_{distance_label}_{i_rep}.db"
+                data_dir, f"log_scale_{distance_label}_{i_rep}.json"
             )
         if isinstance(distance, InfoWeightedPNormDistance):
             distance.info_log_file = os.path.join(
-                data_dir, f"log_info_{distance_label}_{i_rep}.db"
+                data_dir, f"log_info_{distance_label}_{i_rep}.json"
             )
 
-        sampler = RedisEvalParallelSampler(host=host, port=port)
+        sampler = RedisEvalParallelSampler(host=host, port=port, batch_size=10)
         abc = ABCSMC(
             model,
             prior,
