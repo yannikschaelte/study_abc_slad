@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List
 import numpy as np
 from abc import ABC, abstractmethod
 import pyabc
@@ -37,6 +37,10 @@ class Problem(ABC):
     @abstractmethod
     def get_id(self) -> str:
         """Get a problem identifier."""
+
+    def get_y_keys(self) -> List[str]:
+        """Get data keys."""
+        return list(self.get_model()(self.get_gt_par()).keys())
 
 
 def gk(A, B, c, g, k, n: int = 1):

@@ -28,10 +28,18 @@ n_rep = 3
 pop_size = 1000
 max_total_sim = 100000
 
-# generate and save data
-data = problem.get_obs()
-for key, val in data.items():
-    np.savetxt(os.path.join(data_dir, f"data_{key}.csv"), val, delimiter=",")
+# load or generate and save data
+if os.path.exists(os.path.join(data_dir, f"data_{problem.get_y_keys()[0]}.csv")):
+    data = {}
+    for key in problem.get_y_keys():
+        data[key] = np.loadtxt(os.path.join(data_dir, f"data_{key}.csv"), delimiter=",")
+else:
+    # simulate
+    data = problem.get_obs()
+    for key, val in data.items():
+        if not isinstance(val, np.ndarray):
+            val = np.array([val])
+        np.savetxt(os.path.join(data_dir, f"data_{key}.csv"), val, delimiter=",")
 
 for i_rep in range(n_rep):
     distances = {
