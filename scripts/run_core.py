@@ -33,7 +33,7 @@ max_total_sim = 100000
 data = problem.get_obs()
 for key, val in data.items():
     if not isinstance(val, np.ndarray):
-        val = np.array(val)
+        val = np.array([val])
     np.savetxt(os.path.join(data_dir, f"data_{key}.csv"), val, delimiter=",")
 
 for i_rep in range(n_rep):
