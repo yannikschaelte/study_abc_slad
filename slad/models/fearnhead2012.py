@@ -40,7 +40,7 @@ class FearnheadGKProblem(Problem):
         return self.get_model()(self.get_gt_par())
 
     def get_gt_par(self) -> dict:
-        return {"A": 3, "B": 1, "g": 1.5, "k": 0.5}
+        return {"A": 3, "B": 1, "g": 2, "k": 0.5}
 
     def get_sumstat(self) -> pyabc.Sumstat:
         return pyabc.IdentitySumstat(
@@ -49,6 +49,9 @@ class FearnheadGKProblem(Problem):
 
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 1000, "max_total_nr_simulations": 1e6}
+
+    def get_id(self) -> str:
+        return "fearnhead_gk"
 
 
 class FearnheadLVProblem(Problem):
@@ -64,7 +67,6 @@ class FearnheadLVProblem(Problem):
         # output = ssa.output.FullOutput()
         ts = np.arange(0, t_max, 0.1)
         output = ssa.output.ArrayOutput(ts=ts)
-        sigma = np.exp(2.3)
 
         def model(p):
             k = np.array([p["p1"], p["p2"], p["p3"]])
@@ -79,12 +81,13 @@ class FearnheadLVProblem(Problem):
             )
             try:
                 ret = ssa_model.simulate()
-                # shape: (t, 2)
+                # shape: (n_t, 2)
                 sims = ret.list_xs[0]
             except ValueError:
                 sims = np.empty((ts.size, 2))
-                sims[:] = np.nan
-
+                # this value is certainly far away from typical simulations
+                # nan would require special handling in the distance function
+                sims[:] = 0
             return {
                 "y": sims,
             }
@@ -93,13 +96,13 @@ class FearnheadLVProblem(Problem):
 
     def get_prior(self) -> Distribution:
         return Distribution(
-            p1=RV("expon", scale=1 / 100),
-            p2=RV("expon", scale=1 / 100),
-            p3=RV("expon", scale=1 / 100),
+            p1=RV("uniform", 0, 2),
+            p2=RV("uniform", 0, 0.1),
+            p3=RV("uniform", 0, 1),
         )
 
     def get_prior_bounds(self) -> dict:
-        return {"p1": (0, 1), "p2": (0, 0.005), "p3": (0, 0.6)}
+        return {"p1": (0, 2), "p2": (0, 0.1), "p3": (0, 1)}
 
     def get_obs(self) -> dict:
         return self.get_model()(self.get_gt_par())
@@ -109,3 +112,6 @@ class FearnheadLVProblem(Problem):
 
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 1000, "max_total_nr_simulations": 50000}
+
+    def get_id(self) -> str:
+        return "fearnhead_lv"
