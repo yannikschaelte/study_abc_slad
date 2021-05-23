@@ -10,13 +10,7 @@ from pyabc.predictor import *
 
 
 # read cmd line arguments
-parser = argparse.ArgumentParser()
-args = parser.parse_args()
-parser.add_argument("host", type=str)
-parser.add_argument("port", type=int)
-args = parser.parse_args()
-host = args.host
-port = args.port
+host, port = slad.read_args()
 
 # load problem
 problem = slad.FearnheadGKProblem()
@@ -27,7 +21,7 @@ id = problem.get_id()
 
 # output folder
 dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(dir, "data", id)
+data_dir = os.path.join(dir, "..", "data", id)
 os.makedirs(data_dir, exist_ok=True)
 
 # variable definitions
