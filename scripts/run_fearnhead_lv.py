@@ -29,7 +29,7 @@ pop_size = 1000
 max_total_sim = 100000
 
 # generate and save data
-data = model(gt_par)
+data = problem.get_obs()
 for key, val in data.items():
     np.savetxt(os.path.join(data_dir, f"data_{key}.csv"), val, delimiter=",")
 
@@ -85,6 +85,11 @@ for i_rep in range(n_rep):
     }
 
     for distance_label, distance in distances.items():
+        db_file = os.path.join(data_dir, f"db_{distance_label}_{i_rep}.db")
+        if os.path.exists(db_file):
+            print(f"{db_file} exists already, continuing with next")
+            continue
+
         sampler = RedisEvalParallelSampler(host=host, port=port)
         abc = ABCSMC(
             model,
@@ -93,7 +98,6 @@ for i_rep in range(n_rep):
             sampler=sampler,
             population_size=pop_size,
         )
-        db_file = os.path.join(data_dir, f"db_{distance_label}_{i_rep}.db")
         abc.new(db="sqlite:///" + db_file, observed_sum_stat=data)
         abc.run(
             max_total_nr_simulations=max_total_sim,
