@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import logging
 
 import slad
 from pyabc import ABCSMC, RedisEvalParallelSampler
@@ -7,6 +8,9 @@ from pyabc.distance import *
 from pyabc.sumstat import *
 from pyabc.predictor import *
 
+# for debugging
+for logger in ["ABC.Distance", "ABC.Predictor", "ABC.Sumstat"]:
+    logging.getLogger(logger).setLevel(logging.DEBUG)
 
 # read cmd line arguments
 host, port = slad.read_args()
@@ -67,14 +71,24 @@ for i_rep in range(n_rep):
         "MS": AdaptivePNormDistance(
             sumstat=PredictorSumstat(
                 ModelSelectionPredictor(
-                    predictors=[LinearPredictor(), GPPredictor(), MLPPredictor()],
+                    predictors=[
+                        LinearPredictor(),
+                        GPPredictor(GPKernelHandle(ard=False)),
+                        MLPPredictor(),
+                        MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                    ],
                 )
             ),
         ),
         "MS_Subset": AdaptivePNormDistance(
             sumstat=PredictorSumstat(
                 ModelSelectionPredictor(
-                    predictors=[LinearPredictor(), GPPredictor(), MLPPredictor()],
+                    predictors=[
+                        LinearPredictor(),
+                        GPPredictor(GPKernelHandle(ard=False)),
+                        MLPPredictor(),
+                        MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                    ],
                 ),
                 subsetter=GMMSubsetter(),
             ),
@@ -82,12 +96,20 @@ for i_rep in range(n_rep):
         # info distances
         "Info": InfoWeightedPNormDistance(
             predictor=ModelSelectionPredictor(
-                predictors=[LinearPredictor(), MLPPredictor()],
+                predictors=[
+                    LinearPredictor(),
+                    MLPPredictor(),
+                    MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                ],
             ),
         ),
         "Info_Subset": InfoWeightedPNormDistance(
             predictor=ModelSelectionPredictor(
-                predictors=[LinearPredictor(), MLPPredictor()],
+                predictors=[
+                    LinearPredictor(),
+                    MLPPredictor(),
+                    MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                ],
             ),
             subsetter=GMMSubsetter(),
         ),
@@ -119,3 +141,5 @@ for i_rep in range(n_rep):
         abc.run(
             max_total_nr_simulations=max_total_sim,
         )
+
+print(f"ABC {id} out")

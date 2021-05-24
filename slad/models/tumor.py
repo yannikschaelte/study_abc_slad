@@ -70,4 +70,10 @@ class TumorProblem(Problem):
         return "tumor2d"
 
     def get_model(self) -> Callable:
-        return tumor2d.log_model
+        def model(p: dict):
+            ret = tumor2d.log_model(p)
+            for key in ["extra_cellular_matrix_profile", "proliferation_profile"]:
+                ret[key] = ret[key][::10]
+            return ret
+
+        return model

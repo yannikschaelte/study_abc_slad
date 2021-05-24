@@ -1,11 +1,16 @@
 import os
 import numpy as np
+import logging
 
 import slad
 from pyabc import ABCSMC, RedisEvalParallelSampler
 from pyabc.distance import *
 from pyabc.sumstat import *
 from pyabc.predictor import *
+
+# for debugging
+for logger in ["ABC.Distance", "ABC.Predictor", "ABC.Sumstat"]:
+    logging.getLogger(logger).setLevel(logging.DEBUG)
 
 
 # read cmd line arguments
@@ -120,3 +125,5 @@ for i_rep in range(n_rep):
         abc.run(
             max_total_nr_simulations=max_total_sim,
         )
+
+print(f"ABC {id} out")
