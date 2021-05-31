@@ -8,6 +8,7 @@ from .base import Problem, gk
 
 
 class PrangleNormalProblem(Problem):
+
     def get_model(self) -> Callable:
         def model(p):
             """One informative, one uninformative statistic"""
@@ -34,8 +35,12 @@ class PrangleNormalProblem(Problem):
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 1000, "max_total_nr_simulations": 1e6}
 
+    def get_id(self) -> str:
+        return "prangle_normal"
+
 
 class PrangleGKProblem(Problem):
+
     def get_model(self) -> Callable:
         def model(p):
             A, B, g, k = [p[key] for key in ["A", "B", "g", "k"]]
@@ -67,8 +72,12 @@ class PrangleGKProblem(Problem):
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 1000, "max_total_nr_simulations": 1e6}
 
+    def get_id(self) -> str:
+        return "prangle_gk"
+
 
 class PrangleLVProblem(Problem):
+
     def get_model(self) -> Callable:
         import ssa
 
@@ -102,7 +111,7 @@ class PrangleLVProblem(Problem):
                 sims = ret.list_xs[0]
             except ValueError:
                 sims = np.empty((ts.size, 2))
-                sims[:] = np.nan
+                sims[:] = 0
 
             return {
                 "y": sims + sigma * np.random.normal(size=sims.shape),
@@ -126,3 +135,6 @@ class PrangleLVProblem(Problem):
 
     def get_ana_args(self) -> Dict[str, Any]:
         return {"population_size": 200, "max_total_nr_simulations": 50000}
+
+    def get_id(self) -> str:
+        return "prangle_lv"

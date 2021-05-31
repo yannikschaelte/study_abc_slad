@@ -11,6 +11,8 @@ def plot_cis(problem, labels, iters):
     n_par = len(pars)
 
     fig, axes = plt.subplots(nrows=1, ncols=n_par, figsize=(4 * n_par, 4))
+    if n_par == 1:
+        axes = [axes]
 
     lbs, ubs = {}, {}
     for i_label, label in enumerate(labels):
@@ -39,7 +41,7 @@ def plot_cis(problem, labels, iters):
                 y=n_label - i_label - 1, xmin=lbs[par][label], xmax=ubs[par][label]
             )
 
-        axes[i_par].axvline(problem.get_gt_par()[par])
+        axes[i_par].axvline(problem.get_gt_par()[par], color="grey")
 
         axes[i_par].set_yticks(range(n_label))
         axes[i_par].set_yticklabels(reversed(labels))

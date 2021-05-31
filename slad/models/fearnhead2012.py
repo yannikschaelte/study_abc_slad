@@ -11,14 +11,21 @@ from .base import Problem, gk
 
 
 class FearnheadGKProblem(Problem):
+
+    def __init__(self, n_sample: int = 10000, n_sumstat: int = 100):
+        self.n_sample: int = n_sample
+        self.n_sumstat: int = n_sumstat
+
     def get_model(self) -> Callable:
-        n_sample = 10000
-        ixs = np.linspace(0, n_sample, 102, dtype=int)[1:-1]
+        if self.n_sample == self.n_sumstat:
+            ixs = np.arange(self.n_sample)
+        else:
+            ixs = np.linspace(0, self.n_sample, self.n_sumstat + 2, dtype=int)[1:-1]
 
         def model(p):
             A, B, g, k = [p[key] for key in ["A", "B", "g", "k"]]
             c = 0.8
-            vals = gk(A=A, B=B, c=c, g=g, k=k, n=n_sample)
+            vals = gk(A=A, B=B, c=c, g=g, k=k, n=self.n_sample)
             ordered = np.sort(vals)
             subset = ordered[ixs]
             return {"y": subset}
@@ -51,10 +58,11 @@ class FearnheadGKProblem(Problem):
         return {"population_size": 1000, "max_total_nr_simulations": 1e6}
 
     def get_id(self) -> str:
-        return "fearnhead_gk"
+        return f"fearnhead_gk_{self.n_sample}_{self.n_sumstat}"
 
 
 class FearnheadLVProblem(Problem):
+
     def __init__(self, obs_rep: int = 100):
         self.obs_rep: int = obs_rep
 

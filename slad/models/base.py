@@ -6,6 +6,7 @@ from pyabc import Distribution, RV
 
 
 class Problem(ABC):
+
     @abstractmethod
     def get_model(self) -> Callable:
         """Get the model."""
@@ -51,6 +52,7 @@ def gk(A, B, c, g, k, n: int = 1):
 
 
 class CoreProblem(Problem):
+
     def __init__(
         self,
         n0: int = 1,

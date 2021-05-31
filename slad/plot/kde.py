@@ -5,6 +5,7 @@ import pyabc
 def plot_1d_kdes(problem, labels, iters):
     bounds = problem.get_prior_bounds()
     pars = list(bounds.keys())
+    refval = problem.get_gt_par()
 
     n_label = len(labels)
     n_par = len(pars)
@@ -12,6 +13,7 @@ def plot_1d_kdes(problem, labels, iters):
     fig, axes = plt.subplots(
         nrows=n_label, ncols=n_par, figsize=(3 * n_par, 3 * n_label)
     )
+    axes = axes.reshape(n_label, n_par)
 
     for i_label, label in enumerate(labels):
         for iter in iters:
@@ -26,6 +28,8 @@ def plot_1d_kdes(problem, labels, iters):
                     x=par,
                     xmin=bounds[par][0],
                     xmax=bounds[par][1],
+                    refval=refval,
+                    refval_color="grey",
                     ax=axes[i_label, i_par],
                 )
         for i_par in range(n_par):

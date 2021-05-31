@@ -12,7 +12,7 @@ except ImportError:
 
 
 class TumorProblem(Problem):
-    def __init__(self, obs_rep: int = 100):
+    def __init__(self, obs_rep: int = 10):
         self.p_keys = [
             "growth_curve",
             "extra_cellular_matrix_profile",
