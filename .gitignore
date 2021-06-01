@@ -130,3 +130,11 @@ dmypy.json
 
 # pycharm
 .idea/
+
+/out_*/
+*.db
+/miniconda3
+/pyabc
+/tumor2d
+/*old
+
