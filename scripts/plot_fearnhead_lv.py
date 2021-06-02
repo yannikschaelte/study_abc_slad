@@ -10,18 +10,16 @@ labels = [
     "Euclidean",
     "Calibrated",
     # for scale function comparison
-    "Adaptive_std",
     "Adaptive",
     "Euclidean_Linear",
-    "Linear_initial",
-    "Linear",
-    "Linear_Subset",
-    "MS",
-    "MS_Subset",
+    "Adaptive_Linear_initial",
+    "Adaptive_Linear",
+    "Adaptive_MS",
     # info distances
-    "Info",
-    "Info_Subset",
+    "Info_MS",
+    "Info_Linear",
 ]
+
 
 iters = list(range(3))
 problem = slad.FearnheadLVProblem()

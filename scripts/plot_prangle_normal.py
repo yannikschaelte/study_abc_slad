@@ -21,7 +21,7 @@ labels = [
 ]
 
 iters = list(range(3))
-problem = slad.FearnheadGKProblem()
+problem = slad.PrangleNormalProblem()
 
 slad.plot_cis(problem, labels, iters)
 plt.savefig(f"plot/{problem.get_id()}_cis.png")

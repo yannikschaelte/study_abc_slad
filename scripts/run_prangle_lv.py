@@ -12,13 +12,11 @@ from pyabc.predictor import *
 for logger in ["ABC.Distance", "ABC.Predictor", "ABC.Sumstat"]:
     logging.getLogger(logger).setLevel(logging.DEBUG)
 
-
 # read cmd line arguments
 host, port = slad.read_args()
-print(f"Python script with host={host}, port={port}")
 
 # load problem
-problem = slad.CoreProblem()
+problem = slad.PrangleLVProblem()
 model = problem.get_model()
 prior = problem.get_prior()
 gt_par = problem.get_gt_par()
@@ -30,7 +28,7 @@ data_dir = os.path.join(dir, "..", "data", id)
 os.makedirs(data_dir, exist_ok=True)
 
 # variable definitions
-n_rep = 10
+n_rep = 3
 pop_size = 1000
 max_total_sim = 100000
 
@@ -39,7 +37,6 @@ if os.path.exists(os.path.join(data_dir, f"data_{problem.get_y_keys()[0]}.csv"))
     data = {}
     for key in problem.get_y_keys():
         data[key] = np.loadtxt(os.path.join(data_dir, f"data_{key}.csv"), delimiter=",")
-        data[key] = float(data[key])
 else:
     # simulate
     data = problem.get_obs()

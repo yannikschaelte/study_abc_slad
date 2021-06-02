@@ -50,68 +50,42 @@ for i_rep in range(n_rep):
         "Euclidean": PNormDistance(),
         "Calibrated": AdaptivePNormDistance(fit_scale_ixs=1),
         # for scale function comparison
-        "Adaptive_std": AdaptivePNormDistance(scale_function=std),
         "Adaptive": AdaptivePNormDistance(),
         "Euclidean_Linear": PNormDistance(
             sumstat=PredictorSumstat(
-                LinearPredictor(normalize_features=False, normalize_labels=False),
+                LinearPredictor(normalize_features=True, normalize_labels=False),
                 normalize_labels=False,
             ),
         ),
-        "Linear_initial": AdaptivePNormDistance(
+        "Adaptive_Linear_initial": AdaptivePNormDistance(
             sumstat=PredictorSumstat(LinearPredictor(), fit_ixs={0}),
         ),
-        "Linear": AdaptivePNormDistance(
+        "Adaptive_Linear": AdaptivePNormDistance(
             sumstat=PredictorSumstat(LinearPredictor()),
         ),
-        "Linear_Subset": AdaptivePNormDistance(
-            sumstat=PredictorSumstat(LinearPredictor(), subsetter=GMMSubsetter())
-        ),
-        "MS": AdaptivePNormDistance(
+        "Adaptive_MS": AdaptivePNormDistance(
             sumstat=PredictorSumstat(
                 ModelSelectionPredictor(
                     predictors=[
                         LinearPredictor(),
                         GPPredictor(GPKernelHandle(ard=False)),
                         MLPPredictor(),
-                        MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                        # MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
                     ],
                 )
             ),
         ),
-        "MS_Subset": AdaptivePNormDistance(
-            sumstat=PredictorSumstat(
-                ModelSelectionPredictor(
-                    predictors=[
-                        LinearPredictor(),
-                        GPPredictor(GPKernelHandle(ard=False)),
-                        MLPPredictor(),
-                        MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
-                    ],
-                ),
-                subsetter=GMMSubsetter(),
-            ),
-        ),
         # info distances
-        "Info": InfoWeightedPNormDistance(
+        "Info_MS": InfoWeightedPNormDistance(
             predictor=ModelSelectionPredictor(
                 predictors=[
                     LinearPredictor(),
                     MLPPredictor(),
-                    MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
+                    # MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
                 ],
             ),
         ),
-        "Info_Subset": InfoWeightedPNormDistance(
-            predictor=ModelSelectionPredictor(
-                predictors=[
-                    LinearPredictor(),
-                    MLPPredictor(),
-                    MLPPredictor(hidden_layer_sizes=HiddenLayerHandle("mean")),
-                ],
-            ),
-            subsetter=GMMSubsetter(),
-        ),
+        "Info_Linear": InfoWeightedPNormDistance(predictor=LinearPredictor()),
     }
 
     for distance_label, distance in distances.items():
