@@ -57,7 +57,7 @@ class PrangleGKErrorProblem(PrangleGKProblem):
 
 
 class PrangleLVErrorProblem(PrangleLVProblem):
-    def __init__(self, n_obs_error: int = 6):
+    def __init__(self, n_obs_error: int = 3):
         self.n_obs_error: int = n_obs_error
 
     def get_obs(self) -> dict:
@@ -67,8 +67,8 @@ class PrangleLVErrorProblem(PrangleLVProblem):
 
     def errorfy(self, obs: dict):
         if self.n_obs_error > 0:
-            err_ixs = np.random.permutation(len(obs["y"]))[: self.n_obs_error]
-            obs["y"][err_ixs] = 0
+            err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
+            obs["y"][:, err_ixs] = 0
         return obs
 
     def get_id(self) -> str:

@@ -101,6 +101,7 @@ for problem_type in ["gaussian", "gk", "lv"]:
     # output folder
     dir = os.path.dirname(os.path.realpath(__file__))
     data_dir = os.path.join(dir, "..", "data_robust", problem.get_id())
+    os.makedirs(data_dir, exist_ok=True)
 
     # get and save data
     data = problem.get_obs()
@@ -139,6 +140,7 @@ for problem_type in ["gaussian", "gk", "lv"]:
         raise ValueError("Problem type not recognized.")
 
     data_dir = os.path.join(dir, "..", "data_robust", problem.get_id())
+    os.makedirs(data_dir, exist_ok=True)
 
     # get and save data
     data_err = problem.errorfy(data)
