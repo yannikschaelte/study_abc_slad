@@ -45,6 +45,11 @@ def get_distance(name: str) -> pyabc.Distance:
     if name == "Adaptive__Manhattan__mad_or_cmad":
         return AdaptivePNormDistance(p=1, scale_function=mad_or_cmad)
 
+    if name == "Info__Linear__Manhattan__mad_or_cmad":
+        return InfoWeightedPNormDistance(
+            p=1, scale_function=mad_or_cmad, fit_info_ixs={3, 5, 7, 9, 11, 13},
+            predictor=LinearPredictor())
+
     raise ValueError(f"Distance {name} not recognized.")
 
 
@@ -59,7 +64,12 @@ distance_names = [
     "Adaptive__Manhattan__cmad",
     "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad",
 ]
+
+# test
+for distance_name in distance_names:
+    get_distance(distance_name)
 
 
 def save_data(data, data_dir):
@@ -70,14 +80,16 @@ def save_data(data, data_dir):
 
 
 for problem_type in ["gaussian", "gk", "lv"]:
+    print(problem_type)
+
     if problem_type == "gaussian":
         problem = slad.GaussianErrorProblem(n_obs_error=0)
         pop_size = 1000
-        max_total_sim = 1000000
+        max_total_sim = 200000
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem(n_obs_error=0)
         pop_size = 1000
-        max_total_sim = 1000000
+        max_total_sim = 200000
     elif problem_type == "lv":
         problem = slad.PrangleLVErrorProblem(n_obs_error=0)
         pop_size = 200
@@ -99,6 +111,8 @@ for problem_type in ["gaussian", "gk", "lv"]:
     save_data(data, data_dir)
 
     for distance_name in distance_names:
+        print(distance_name)
+
         db_file = os.path.join(data_dir, f"db_{distance_name}.db")
         if os.path.exists(db_file):
             print(f"{db_file} exists already, continuing with next")
@@ -138,6 +152,8 @@ for problem_type in ["gaussian", "gk", "lv"]:
     save_data(data, data_dir)
 
     for distance_name in distance_names:
+        print(distance_name)
+
         db_file = os.path.join(data_dir, f"db_{distance_name}.db")
         if os.path.exists(db_file):
             print(f"{db_file} exists already, continuing with next")

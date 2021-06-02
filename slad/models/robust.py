@@ -21,6 +21,10 @@ class GaussianErrorProblem(Problem):
     def get_obs(self) -> dict:
         model = self.get_model()
         obs = model(self.get_gt_par())
+        obs = self.errorfy(obs)
+        return obs
+
+    def errorfy(self, obs: dict):
         obs["y"][: self.n_obs_error] = 0
         return obs
 
