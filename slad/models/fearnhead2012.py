@@ -41,6 +41,7 @@ class FearnheadGKProblem(Problem):
         )
 
     def get_prior_bounds(self) -> dict:
+        return {"A": (2.8, 3.2), "B": (0.8, 1.2), "g": (0, 4), "k": (0, 2)}
         return {key: (0, 10) for key in ["A", "B", "g", "k"]}
 
     def get_obs(self) -> dict:
