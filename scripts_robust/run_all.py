@@ -45,6 +45,10 @@ def get_distance(name: str) -> pyabc.Distance:
     if name == "Adaptive__Manhattan__mad_or_cmad":
         return AdaptivePNormDistance(p=1, scale_function=mad_or_cmad)
 
+    if name == "Info__Linear__Manhattan__mad_or_cmad":
+        return InfoWeightedPNormDistance(
+            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(), fit_info_ixs={3, 5, 7, 9, 11, 13})
+
     raise ValueError(f"Distance {name} not recognized.")
 
 
@@ -59,7 +63,12 @@ distance_names = [
     "Adaptive__Manhattan__cmad",
     "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad",
 ]
+
+
+for distance_name in distance_names:
+    get_distance(distance_name)
 
 
 def save_data(data, data_dir):
