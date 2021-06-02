@@ -7,6 +7,8 @@
 
 set -e
 
+CPUS_PER_TASK=48
+
 # read arguments
 for ARG in "$@"; do
   KEY=$(echo $ARG | cut -f1 -d=)
@@ -35,10 +37,10 @@ if [ -z $DAEMON ]; then echo "daemon unset"; exit 1; fi
 # start server
 srun \
   --nodes=1 --ntasks=1 \
-  --output=$OUT/out_slurm_worker_$IW.txt --error=$OUT/err_slurm_worker_$IW.txt \
+  --output=$OUT/out_slurm_server.txt --error=$OUT/err_slurm_server.txt \
   server.sh \
   --out=$OUT \
-  --port=$PORT --daemon=$DAEMON --file=$FILE &
+  --port=$PORT --daemon=$DAEMON --file=$FILE --procs=$CPUS_PER_TASK &
 
 # give server time to start
 sleep 10
@@ -56,12 +58,18 @@ for IW in $(seq $WORKERS); do
     --nodes=1 --ntasks=1 \
     --output=$OUT/out_slurm_worker_$IW.txt --error=$OUT/err_slurm_worker_$IW.txt \
     worker.sh \
-    --host=$HOST --port=$PORT --daemon=$DAEMON &
+    --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$CPUS_PER_TASK &
 done
 
-# start one more worker
+# start one more worker with ncpu-1 processes
 srun \
   --nodes=1 --ntasks=1 \
-  --output=$OUT/out_slurm_worker_$IW.txt --error=$OUT/err_slurm_worker_$IW.txt \
+  --output=$OUT/out_slurm_worker.txt --error=$OUT/err_slurm_worker.txt \
   worker.sh \
-  --host=$HOST --port=$PORT --daemon=$DAEMON
+  --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$((CPUS_PER_TASK-1)) &
+
+sleep 5
+
+# start script
+echo "Starting script $FILE"
+python $FILE --host=$HOST --port=$PORT

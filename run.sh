@@ -6,6 +6,7 @@ set -e
 
 ACCOUNT="fitmulticell"
 DAEMON="True"
+TIME="24:00:00"
 
 # read arguments
 for ARG in "$@"; do
@@ -14,6 +15,7 @@ for ARG in "$@"; do
   case "$KEY" in
     --account) ACCOUNT=$VAL ;;
     --nodes) NODES=$VAL ;;
+    --time) TIME=$VAL ;;
     --file) FILE=$VAL ;;
     --port) PORT=$VAL ;;
     --daemon) DAEMON=$VAL ;;
@@ -33,6 +35,7 @@ sbatch \
     --account=$ACCOUNT \
     --nodes=$NODES --ntasks=$NODES \
     --output=$OUT/out_slurm.txt --error=$OUT/err_slurm.txt \
+    --time=$TIME \
   sbatch_job.sh \
     --account=$ACCOUNT --nodes=$NODES \
     --out=$OUT --file=$FILE --port=$PORT --daemon=$DAEMON
