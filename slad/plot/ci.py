@@ -3,7 +3,9 @@ import numpy as np
 import pyabc
 
 
-def plot_cis(problem, labels, iters):
+def plot_cis(problem, labels, iters=None, data_dir="data"):
+    if iters is None:
+        iters = [None]
     bounds = problem.get_prior_bounds()
     pars = list(bounds.keys())
 
@@ -17,9 +19,10 @@ def plot_cis(problem, labels, iters):
     lbs, ubs = {}, {}
     for i_label, label in enumerate(labels):
         for iter in iters:
-            h = pyabc.History(
-                f"sqlite:///data/{problem.get_id()}/db_{label}_{iter}.db", create=False
-            )
+            if iter is None:
+                h = pyabc.History(f"sqlite:///{data_dir}/{problem.get_id()}/db_{label}.db", create=False)
+            else:
+                h = pyabc.History(f"sqlite:///{data_dir}/{problem.get_id()}/db_{label}_{iter}.db", create=False)
             df, w = h.get_distribution()
             for i_par, par in enumerate(pars):
                 lb = pyabc.weighted_quantile(df[par].to_numpy(), w, alpha=0.05)

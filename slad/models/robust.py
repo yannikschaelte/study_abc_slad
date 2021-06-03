@@ -72,7 +72,7 @@ class PrangleLVErrorProblem(PrangleLVProblem):
     def errorfy(self, obs: dict):
         if self.n_obs_error > 0:
             err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
-            obs["y"][:, err_ixs] = 0
+            obs["y"][err_ixs, :] = 0
         return obs
 
     def get_id(self) -> str:

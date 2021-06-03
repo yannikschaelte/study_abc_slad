@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import pyabc
 
 
-def plot_1d_kdes(problem, labels, iters):
+def plot_1d_kdes(problem, labels, iters=None, data_dir="data"):
+    if iters is None:
+        iters = [None]
     bounds = problem.get_prior_bounds()
     pars = list(bounds.keys())
     refval = problem.get_gt_par()
@@ -17,9 +19,10 @@ def plot_1d_kdes(problem, labels, iters):
 
     for i_label, label in enumerate(labels):
         for iter in iters:
-            h = pyabc.History(
-                f"sqlite:///data/{problem.get_id()}/db_{label}_{iter}.db", create=False
-            )
+            if iter is None:
+                h = pyabc.History(f"sqlite:///{data_dir}/{problem.get_id()}/db_{label}.db", create=False)
+            else:
+                h = pyabc.History(f"sqlite:///{data_dir}/{problem.get_id()}/db_{label}_{iter}.db", create=False)
             df, w = h.get_distribution()
             for i_par, par in enumerate(pars):
                 pyabc.visualization.plot_kde_1d(
