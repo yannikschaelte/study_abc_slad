@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import slad
 
 
-def load_data(data_dir):
+def load_data(problem, data_dir):
     data = {}
     for key in problem.get_y_keys():
         data[key] = np.loadtxt(os.path.join(data_dir, f"data_{key}.csv"), delimiter=",")
@@ -15,16 +15,17 @@ def load_data(data_dir):
 
 
 dir = os.path.dirname(os.path.realpath(__file__))
-
+n_rep = 3
 
 for problem in [
     slad.PrangleLVErrorProblem(n_obs_error=0),
     slad.PrangleLVErrorProblem(),
 ]:
-    data_dir = os.path.join(dir, "..", "data_robust", problem.get_id())
-    data = load_data(data_dir)
+    for i_rep in range(n_rep):
+        data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
+        data = load_data(problem, data_dir)
 
-    fig, ax = plt.subplots()
-    ax.plot(data["y"][:, 0])
-    ax.plot(data["y"][:, 1])
-    plt.savefig(f"plot_robust/data_{problem.get_id()}.png")
+        fig, ax = plt.subplots()
+        ax.plot(data["y"][:, 0])
+        ax.plot(data["y"][:, 1])
+        plt.savefig(f"plot_robust/data_{problem.get_id()}_{i_rep}.png")

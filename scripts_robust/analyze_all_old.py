@@ -42,7 +42,6 @@ problem_labels = {
 }
 
 data_dir = "data_robust"
-n_rep = 5
 
 for problem_type in [
     "gaussian",
@@ -63,7 +62,7 @@ for problem_type in [
     n_par = len(gt_par)
     n_dist = len(distance_names)
 
-    vals = np.full(shape=(n_dist, 2, n_par, n_rep), fill_value=np.nan)
+    vals = np.full(shape=(n_dist, 2, n_par), fill_value=np.nan)
 
     for i_mode, kwargs in enumerate([{'n_obs_error': 0}, {}]):
 
@@ -76,19 +75,15 @@ for problem_type in [
 
         for i_dist, distance_name in enumerate(distance_names):
             print(kwargs, distance_name)
-            for i_rep in range(n_rep):
-                h = pyabc.History(
-                    f"sqlite:///data_robust/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
-                    create=False)
+            h = pyabc.History(
+                f"sqlite:///data_robust/{problem.get_id()}/db_{distance_name}.db",
+                create=False)
 
-                df, w = h.get_distribution()
-                vals[i_dist, i_mode, :, i_rep] = np.array(
-                    [pyabc.weighted_rmse(df[key], w, gt_par[key]) for key in gt_par])
+            df, w = h.get_distribution()
+            vals[i_dist, i_mode] = np.array(
+                [pyabc.weighted_rmse(df[key], w, gt_par[key]) for key in gt_par])
 
-                print(vals[i_dist, i_mode, :, i_rep])
-
-    means = np.mean(vals, axis=3)
-    stds = np.std(vals, axis=3)
+            print(vals[i_dist, i_mode])
 
     # plot
     fig, axes = plt.subplots(nrows=1, ncols=n_par, figsize=(2+n_par*2, n_dist * 0.5))
@@ -103,13 +98,11 @@ for problem_type in [
         else:
             ax.set_yticks([])
         ax.invert_yaxis()
-        ax.barh(ys - 0.2, means[:, 0, i_par], xerr=stds[:, 0, i_par], color='C0', height=0.4)
-        ax.barh(ys + 0.2, means[:, 1, i_par], xerr=stds[:, 0, i_par], color='C1', height=0.4)
+        ax.barh(ys - 0.2, vals[:, 0, i_par], color='C0', height=0.4)
+        ax.barh(ys + 0.2, vals[:, 1, i_par], color='C1', height=0.4)
         ax.set_xscale("log")
         ax.set_xlabel("RMSE")
         ax.set_title(key)
-        ax.axhline(y=4.5, color="grey", linestyle="--")
-        ax.axhline(y=9.5, color="grey", linestyle="--")
 
     fig.suptitle(problem_labels[problem_type])
     fig.tight_layout()

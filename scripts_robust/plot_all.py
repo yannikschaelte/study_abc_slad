@@ -21,34 +21,24 @@ distance_names = [
 ]
 
 data_dir = "data_robust"
+n_rep = 5
 
 for problem_type in [
-    #"gaussian",
-    #"gk",
+    "gaussian",
+    "gk",
     "lv",
 ]:
-    if problem_type == "gaussian":
-        problem = slad.GaussianErrorProblem(n_obs_error=0)
-    elif problem_type == "gk":
-        problem = slad.PrangleGKErrorProblem(n_obs_error=0)
-    elif problem_type == "lv":
-        problem = slad.PrangleLVErrorProblem(n_obs_error=0)
+    for i_rep in range(n_rep):
+        for kwargs in [{'n_obs_error': 0}, {}]:
+            if problem_type == "gaussian":
+                problem = slad.GaussianErrorProblem(**kwargs)
+            elif problem_type == "gk":
+                problem = slad.PrangleGKErrorProblem(**kwargs)
+            elif problem_type == "lv":
+                problem = slad.PrangleLVErrorProblem(**kwargs)
 
-    slad.plot_cis(problem, distance_names, data_dir=data_dir)
-    plt.savefig(f"plot_robust/{problem.get_id()}_cis.png")
+            slad.plot_cis(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
+            plt.savefig(f"plot_robust/{problem.get_id()}_{i_rep}_cis.png")
 
-    slad.plot_1d_kdes(problem, distance_names, data_dir=data_dir)
-    plt.savefig(f"plot_robust/{problem.get_id()}_1d_kdes.png")
-
-    if problem_type == "gaussian":
-        problem = slad.GaussianErrorProblem()
-    elif problem_type == "gk":
-        problem = slad.PrangleGKErrorProblem()
-    elif problem_type == "lv":
-        problem = slad.PrangleLVErrorProblem()
-
-    slad.plot_cis(problem, distance_names, data_dir=data_dir)
-    plt.savefig(f"plot_robust/{problem.get_id()}_cis.png")
-
-    slad.plot_1d_kdes(problem, distance_names, data_dir=data_dir)
-    plt.savefig(f"plot_robust/{problem.get_id()}_1d_kdes.png")
+            slad.plot_1d_kdes(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
+            plt.savefig(f"plot_robust/{problem.get_id()}_{i_rep}_1d_kdes.png")
