@@ -39,4 +39,4 @@ sleep 5
 # start ncpu-1 workers
 echo "Starting workers"
 abc-redis-worker --host=localhost --port=$PORT --runtime=24h \
-  --processes=$((PROCS-30)) --daemon=$DAEMON
+  --processes=$((PROCS-1)) --daemon=$DAEMON

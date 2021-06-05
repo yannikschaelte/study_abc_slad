@@ -45,7 +45,7 @@ srun \
   --port=$PORT --daemon=$DAEMON --file=$FILE --procs=$CPUS_PER_TASK &
 
 # give server time to start
-sleep 15
+sleep 10
 
 # retrieve server id
 HOSTNAME=`cat $OUT/ip.txt | tr '\n' ' '`
