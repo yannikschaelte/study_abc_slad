@@ -1,7 +1,5 @@
 #!/bin/bash
 #SBATCH --account=fitmulticell
-#SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=48
 #SBATCH --partition=batch
 #SBATCH --time=24:00:00
 
@@ -31,19 +29,23 @@ if [ -z $FILE ]; then echo "file unset"; exit 1; fi
 if [ -z $PORT ]; then echo "port unset"; exit 1; fi
 if [ -z $DAEMON ]; then echo "daemon unset"; exit 1; fi
 
+sleep 5
+
 # load environment
 . start_env.sh
 
 # start server
+echo "Starting node with server"
 srun \
-  --nodes=1 --ntasks=1 \
+  --exclusive \
+  --nodes=1 --ntasks=1 --cpus-per-task=$CPUS_PER_TASK \
   --output=$OUT/out_slurm_server.txt --error=$OUT/err_slurm_server.txt \
-  server.sh \
+  run_server.sh \
   --out=$OUT \
   --port=$PORT --daemon=$DAEMON --file=$FILE --procs=$CPUS_PER_TASK &
 
 # give server time to start
-sleep 10
+sleep 15
 
 # retrieve server id
 HOSTNAME=`cat $OUT/ip.txt | tr '\n' ' '`
@@ -52,24 +54,21 @@ echo "Server running on IP $HOST"
 
 # start workers
 WORKERS=$((NODES-2))
-echo "Starting $WORKERS workers"
+echo "Starting $WORKERS nodes with workers"
 for IW in $(seq $WORKERS); do
   srun \
-    --nodes=1 --ntasks=1 \
+    --exclusive \
+    --nodes=1 --ntasks=1 --cpus-per-task=$CPUS_PER_TASK \
     --output=$OUT/out_slurm_worker_$IW.txt --error=$OUT/err_slurm_worker_$IW.txt \
-    worker.sh \
+    run_worker.sh \
     --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$CPUS_PER_TASK &
 done
 
-# start one more worker with ncpu-1 processes
+# start main program
+echo "Starting node with main program"
 srun \
-  --nodes=1 --ntasks=1 \
-  --output=$OUT/out_slurm_worker.txt --error=$OUT/err_slurm_worker.txt \
-  worker.sh \
-  --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$((CPUS_PER_TASK-1)) &
-
-sleep 5
-
-# start script
-echo "Starting script $FILE"
-python $FILE --host=$HOST --port=$PORT
+  --exclusive \
+  --nodes=1 --ntasks=1 --cpus-per-task=$CPUS_PER_TASK \
+  --output=$OUT/out_slurm_main.txt --error=$OUT/err_slurm_main.txt \
+  run_main.sh \
+  --file=$FILE --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$CPUS_PER_TASK
