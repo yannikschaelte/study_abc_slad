@@ -62,6 +62,7 @@ for IW in $(seq $WORKERS); do
     --output=$OUT/out_slurm_worker_$IW.txt --error=$OUT/err_slurm_worker_$IW.txt \
     run_worker.sh \
     --host=$HOST --port=$PORT --daemon=$DAEMON --procs=$CPUS_PER_TASK &
+  sleep 1
 done
 
 # start main program

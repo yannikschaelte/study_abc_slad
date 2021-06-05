@@ -30,7 +30,7 @@ echo "Starting workers"
 abc-redis-worker --host=$HOST --port=$PORT --runtime=24h \
   --processes=$((PROCS-1)) --daemon=$DAEMON &
 
-sleep 10
+sleep 1
 
 # run main program
 echo "Starting main program"
