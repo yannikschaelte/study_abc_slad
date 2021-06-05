@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import logging
 
@@ -48,7 +49,7 @@ def get_distance(name: str) -> pyabc.Distance:
             p=1,
             scale_function=mad_or_cmad,
             predictor=LinearPredictor(),
-            fit_info_ixs={3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23},
+            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27},
         )
 
     raise ValueError(f"Distance {name} not recognized.")
@@ -119,7 +120,7 @@ for i_rep in range(n_rep):
     for kwargs in [{"frac_error": 0}, {}]:
         problem = slad.TumorErrorProblem(**kwargs)
         pop_size = 1000
-        max_total_sim = 300000
+        max_total_sim = 250000
 
         model = problem.get_model()
         prior = problem.get_prior()
@@ -156,3 +157,6 @@ for i_rep in range(n_rep):
             )
             abc.new(db="sqlite:///" + db_file, observed_sum_stat=data)
             abc.run(max_total_nr_simulations=max_total_sim)
+
+            print(f"ABC out {kwargs} {distance_name}")
+            sys.exit(0)

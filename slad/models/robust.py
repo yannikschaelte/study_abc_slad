@@ -80,7 +80,7 @@ class PrangleLVErrorProblem(PrangleLVProblem):
 
 
 class TumorErrorProblem(TumorProblem):
-    def __init__(self, obs_rep: int = 1, frac_error: float = 0.1):
+    def __init__(self, obs_rep: int = 1, frac_error: float = 0.2):
         super().__init__(obs_rep=obs_rep)
         self.frac_error: float = frac_error
 
@@ -91,11 +91,12 @@ class TumorErrorProblem(TumorProblem):
 
     def errorfy(self, obs: dict) -> dict:
         if self.frac_error > 0:
-            for key in self.refval.keys():
-                n_obs = len(obs[key])
+            for key in obs.keys():
+                n_obs = sum(~np.isclose(obs[key], 0))
                 n_err = min(int(self.frac_error * n_obs), n_obs)
                 err_ixs = np.random.permutation(n_obs)[:n_err]
                 while any(np.isclose(obs[key][err_ixs], 0)):
+                    print("Retrying bc 0 values")
                     err_ixs = np.random.permutation(n_obs)[:n_err]
                 obs[key][err_ixs] = 0
         return obs

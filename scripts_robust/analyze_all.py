@@ -113,4 +113,4 @@ for problem_type in [
 
     fig.suptitle(problem_labels[problem_type])
     fig.tight_layout()
-    plt.savefig(f"plot_robust/rmse_{problem_type}.png")
+    plt.savefig(f"plot_robust/rmse_{problem_type}_log.png")
