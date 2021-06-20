@@ -80,8 +80,8 @@ class PrangleLVErrorProblem(PrangleLVProblem):
 
 
 class TumorErrorProblem(TumorProblem):
-    def __init__(self, obs_rep: int = 1, frac_error: float = 0.2):
-        super().__init__(obs_rep=obs_rep)
+    def __init__(self, obs_rep: int = 1, noisy: bool = False, frac_error: float = 0.1):
+        super().__init__(obs_rep=obs_rep, noisy=noisy)
         self.frac_error: float = frac_error
 
     def get_obs(self) -> dict:
@@ -92,14 +92,22 @@ class TumorErrorProblem(TumorProblem):
     def errorfy(self, obs: dict) -> dict:
         if self.frac_error > 0:
             for key in obs.keys():
-                n_obs = sum(~np.isclose(obs[key], 0))
+                if key == "proliferation_profile":
+                    n_obs = 22
+                elif key == "extra_cellular_matrix_profile":
+                    n_obs = 65
+                elif key == "growth_curve":
+                    n_obs = 20
+                else:
+                    raise ValueError(f"key {key} does not exist")
+
                 n_err = min(int(self.frac_error * n_obs), n_obs)
+                for i_err in range(n_err):
+                    obs[key][i_err * 2 + 2], obs[key][n_obs - (i_err * 2 + 2) -1] = \
+                        obs[key][n_obs - (i_err * 2 + 2) -1], obs[key][i_err * 2 + 2]
                 err_ixs = np.random.permutation(n_obs)[:n_err]
-                while any(np.isclose(obs[key][err_ixs], 0)):
-                    print("Retrying bc 0 values")
-                    err_ixs = np.random.permutation(n_obs)[:n_err]
-                obs[key][err_ixs] = 0
+                obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
         return obs
 
     def get_id(self) -> str:
-        return f"tumor2d_{self.frac_error}"
+        return f"{super().get_id()}_{self.frac_error}"

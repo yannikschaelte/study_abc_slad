@@ -12,7 +12,7 @@ except ImportError:
 
 
 class TumorProblem(Problem):
-    def __init__(self, obs_rep: int = 10):
+    def __init__(self, obs_rep: int = 10, noisy: bool = False):
         self.p_keys = [
             "growth_curve",
             "extra_cellular_matrix_profile",
@@ -44,6 +44,13 @@ class TumorProblem(Problem):
 
         self.obs_rep: int = obs_rep
 
+        self.noisy: bool = noisy
+        self.noise_levels = {
+            "growth_curve": 20,
+            "extra_cellular_matrix_profile": 0.1,
+            "proliferation_profile": 0.01,
+        }
+
     def get_prior(self) -> pyabc.Distribution:
         return pyabc.Distribution(
             **{
@@ -67,13 +74,20 @@ class TumorProblem(Problem):
         return self.refval
 
     def get_id(self) -> str:
+        if self.noisy:
+            return "tumor2d_noisy"
         return "tumor2d"
 
     def get_model(self) -> Callable:
         def model(p: dict):
             ret = tumor2d.log_model(p)
+            # reduce resolution
             for key in ["extra_cellular_matrix_profile", "proliferation_profile"]:
                 ret[key] = ret[key][::10]
+            # add measurement noise
+            for key in ret.keys():
+                if self.noisy:
+                    ret[key] = ret[key] + self.noise_levels[key] * np.random.randn(len(ret[key]))
             return ret
 
         return model
