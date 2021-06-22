@@ -40,6 +40,7 @@ echo "Output folder: $OUT"
 # run batch script
 sbatch \
   --account=$ACCOUNT \
+  --job-name=$NAME \
   --nodes=$NODES --ntasks=$NODES --ntasks-per-node=1 \
   --cpus-per-task=$CPUS_PER_TASK \
   --output=$OUT/out_slurm.txt --error=$OUT/err_slurm.txt \

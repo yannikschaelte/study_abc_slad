@@ -45,10 +45,26 @@ def get_distance(name: str) -> pyabc.Distance:
     if name == "Adaptive__Manhattan__mad_or_cmad":
         return AdaptivePNormDistance(p=1, scale_function=mad_or_cmad)
 
-    if name == "Info__Linear__Manhattan__mad_or_cmad":
+    if name == "Info__Linear__Manhattan__mad_or_cmad__All":
         return InfoWeightedPNormDistance(
             p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
-            fit_info_ixs={3, 5, 7, 9, 11, 13})
+            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36})
+    if name == "Info__Linear__Manhattan__mad_or_cmad__Subset":
+        return InfoWeightedPNormDistance(
+            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
+            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36},
+            subsetter=GMMSubsetter(),
+        )
+    if name == "Info__Linear__Manhattan__mad_or_cmad__All__Late":
+        return InfoWeightedPNormDistance(
+            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
+            fit_info_ixs={9, 15})
+    if name == "Info__Linear__Manhattan__mad_or_cmad__Subset__Late":
+        return InfoWeightedPNormDistance(
+            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
+            fit_info_ixs={9, 15},
+            subsetter=GMMSubsetter(),
+        )
 
     raise ValueError(f"Distance {name} not recognized.")
 
@@ -64,7 +80,10 @@ distance_names = [
     "Adaptive__Manhattan__cmad",
     "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad__All",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset", 
+    "Info__Linear__Manhattan__mad_or_cmad__All__Late",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset__Late",
 ]
 
 # test
@@ -88,7 +107,7 @@ def load_data(problem, data_dir):
     return data
 
 
-n_rep = 5
+n_rep = 10
 
 # create data
 for problem_type in ["gaussian", "gk", "lv"]:

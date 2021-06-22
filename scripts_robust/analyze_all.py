@@ -18,7 +18,11 @@ distance_names = [
     "Adaptive__Manhattan__mad",
     "Adaptive__Manhattan__cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
+    #"Info__Linear__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad__All",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset",
+    "Info__Linear__Manhattan__mad_or_cmad__All__Late",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset__Late",
 ]
 
 distance_labels = {
@@ -33,6 +37,10 @@ distance_labels = {
     "Adaptive__Manhattan__cmad": "L1 + Adap. + CMAD",
     "Adaptive__Manhattan__mad_or_cmad": "L1 + Adap. + (C)MAD",
     "Info__Linear__Manhattan__mad_or_cmad": "L1 + Adap. + (C)MAD + Info",
+    "Info__Linear__Manhattan__mad_or_cmad__All": "L1 + Adap. + (C)MAD + Info + All",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset": "L1 + Adap. + (C)AMD + Info + Subset",
+    "Info__Linear__Manhattan__mad_or_cmad__All__Late": "L1 + Adap. + (C)MAD + Info + All + Late",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset__Late": "L1 + Adap. + (C)MAD + Info + Subset + Late",
 }
 
 problem_labels = {
@@ -42,7 +50,7 @@ problem_labels = {
 }
 
 data_dir = "data_robust"
-n_rep = 5
+n_rep = 10
 
 for problem_type in [
     "gaussian",
@@ -81,7 +89,7 @@ for problem_type in [
                     f"sqlite:///data_robust/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
                     create=False)
 
-                df, w = h.get_distribution()
+                df, w = h.get_distribution(t=h.max_t-1)
                 vals[i_dist, i_mode, :, i_rep] = np.array(
                     [pyabc.weighted_rmse(df[key], w, gt_par[key]) for key in gt_par])
 
@@ -105,12 +113,16 @@ for problem_type in [
         ax.invert_yaxis()
         ax.barh(ys - 0.2, means[:, 0, i_par], xerr=stds[:, 0, i_par], color='C0', height=0.4)
         ax.barh(ys + 0.2, means[:, 1, i_par], xerr=stds[:, 0, i_par], color='C1', height=0.4)
-        ax.set_xscale("log")
+        #ax.set_xscale("log")
         ax.set_xlabel("RMSE")
         ax.set_title(key)
         ax.axhline(y=4.5, color="grey", linestyle="--")
         ax.axhline(y=9.5, color="grey", linestyle="--")
 
     fig.suptitle(problem_labels[problem_type])
+    fig.tight_layout()
+    plt.savefig(f"plot_robust/rmse_{problem_type}.png")
+    for ax in axes:
+        ax.set_xscale("log")
     fig.tight_layout()
     plt.savefig(f"plot_robust/rmse_{problem_type}_log.png")

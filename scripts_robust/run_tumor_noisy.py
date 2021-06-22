@@ -7,6 +7,7 @@ import pyabc
 from pyabc import ABCSMC, RedisEvalParallelSampler
 from pyabc.distance import *
 from pyabc.predictor import *
+from pyabc.sumstat import *
 
 import slad
 
@@ -51,22 +52,31 @@ def get_distance(name: str) -> pyabc.Distance:
             predictor=LinearPredictor(),
             fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27},
         )
+    if name == "Info__Linear__Manhattan__mad_or_cmad__Subset":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(),
+            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27},
+            subsetter=GMMSubsetter(),
+        )
 
     raise ValueError(f"Distance {name} not recognized.")
 
 
 distance_names = [
     # "Euclidean",
-    "Manhattan",
+    #"Manhattan",
     # "Calibrated__Euclidean__mad",
-    "Calibrated__Manhattan__mad",
-    # "Adaptive__Euclidean__mad",
-    "Adaptive__Manhattan__mad",
-    # "Adaptive__Euclidean__cmad",
-    # "Adaptive__Manhattan__cmad",
+    #"Calibrated__Manhattan__mad",
+    "Adaptive__Euclidean__mad",
+    #"Adaptive__Manhattan__mad",
+    #"Adaptive__Euclidean__cmad",
+    #"Adaptive__Manhattan__cmad",
     # "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
     "Info__Linear__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset",
 ]
 
 # test
@@ -94,7 +104,7 @@ n_rep = 1
 
 # create data
 for i_rep in range(n_rep):
-    problem = slad.TumorErrorProblem(frac_error=0)
+    problem = slad.TumorErrorProblem(noisy=True, frac_error=0)
 
     dir = os.path.dirname(os.path.realpath(__file__))
     data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
@@ -106,7 +116,7 @@ for i_rep in range(n_rep):
         save_data(data, data_dir)
 
     # errored data
-    problem = slad.TumorErrorProblem()
+    problem = slad.TumorErrorProblem(noisy=True)
 
     dir = os.path.dirname(os.path.realpath(__file__))
     data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
@@ -119,7 +129,7 @@ for i_rep in range(n_rep):
 
 for i_rep in range(n_rep):
 
-    for kwargs in [{"frac_error": 0}, {}]:
+    for kwargs in reversed([{"noisy": True, "frac_error": 0}, {"noisy": True, "frac_error": 0.1}]):
         problem = slad.TumorErrorProblem(**kwargs)
         pop_size = 1000
         max_total_sim = 250000
@@ -161,5 +171,6 @@ for i_rep in range(n_rep):
             abc.run(max_total_nr_simulations=max_total_sim)
 
             print(f"ABC out {kwargs} {distance_name}")
+            raise ValueError("Done!!!!")
             sys.exit(0)
             #return

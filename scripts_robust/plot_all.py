@@ -17,11 +17,13 @@ distance_names = [
     "Adaptive__Manhattan__cmad",
     "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
+    #"Info__Linear__Manhattan__mad_or_cmad",
+    "Info__Linear__Manhattan__mad_or_cmad__All",
+    "Info__Linear__Manhattan__mad_or_cmad__Subset",
 ]
 
 data_dir = "data_robust"
-n_rep = 5
+n_rep = 10
 
 for problem_type in [
     "gaussian",
