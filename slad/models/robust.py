@@ -3,8 +3,10 @@ import numpy as np
 
 import pyabc
 
-from .prangle2015 import *
-from .tumor import *
+from .base import Problem
+from .prangle2015 import PrangleGKProblem, PrangleLVProblem
+from .cr import CRProblem
+from .tumor import TumorProblem
 
 
 class GaussianErrorProblem(Problem):
@@ -79,6 +81,49 @@ class PrangleLVErrorProblem(PrangleLVProblem):
         return f"prangle_lv_{self.n_obs_error}"
 
 
+class CRErrorZeroProblem(CRProblem):
+    def __init__(self, noise_std: float = 0.02, n_obs_error: int = 1):
+        super().__init__(noise_std=noise_std)
+        self.n_obs_error: int = n_obs_error
+
+    def get_obs(self) -> dict:
+        obs = super().get_obs()
+        obs = self.errorfy(obs)
+        return obs
+
+    def errorfy(self, obs: dict) -> dict:
+        if self.n_obs_error == 0:
+            return obs
+
+        obs["y"][np.random.permutation(len(obs["y"]))[: self.n_obs_error]] = 0
+        return obs
+
+    def get_id(self) -> str:
+        return f"CRZero_{self.n_obs_error}"
+
+
+class CRErrorSwapProblem(CRProblem):
+    def __init__(self, noise_std: float = 0.02, n_obs_error: int = 1):
+        super().__init__(noise_std=noise_std)
+        self.n_obs_error: int = n_obs_error
+
+    def get_obs(self) -> dict:
+        obs = super().get_obs()
+        obs = self.errorfy(obs)
+        return obs
+
+    def errorfy(self, obs: dict) -> dict:
+        if self.n_obs_error == 0:
+            return obs
+
+        ix0, ix1 = np.random.permutation(len(obs["y"]))[:2]
+        obs["y"][ix0], obs["y"][ix1] = obs["y"][ix1], obs["y"][ix0]
+        return obs
+
+    def get_id(self) -> str:
+        return f"CRSwap_{self.n_obs_error}"
+
+
 class TumorErrorProblem(TumorProblem):
     def __init__(self, obs_rep: int = 1, noisy: bool = False, frac_error: float = 0.1):
         super().__init__(obs_rep=obs_rep, noisy=noisy)
@@ -103,8 +148,10 @@ class TumorErrorProblem(TumorProblem):
 
                 n_err = min(int(self.frac_error * n_obs), n_obs)
                 for i_err in range(n_err):
-                    obs[key][i_err * 2 + 2], obs[key][n_obs - (i_err * 2 + 2) -1] = \
-                        obs[key][n_obs - (i_err * 2 + 2) -1], obs[key][i_err * 2 + 2]
+                    obs[key][i_err * 2 + 2], obs[key][n_obs - (i_err * 2 + 2) - 1] = (
+                        obs[key][n_obs - (i_err * 2 + 2) - 1],
+                        obs[key][i_err * 2 + 2],
+                    )
                 err_ixs = np.random.permutation(n_obs)[:n_err]
                 obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
         return obs
