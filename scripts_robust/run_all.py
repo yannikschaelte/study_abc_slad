@@ -47,21 +47,31 @@ def get_distance(name: str) -> pyabc.Distance:
 
     if name == "Info__Linear__Manhattan__mad_or_cmad__All":
         return InfoWeightedPNormDistance(
-            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
-            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36})
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(),
+            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36},
+        )
     if name == "Info__Linear__Manhattan__mad_or_cmad__Subset":
         return InfoWeightedPNormDistance(
-            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(),
             fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36},
             subsetter=GMMSubsetter(),
         )
     if name == "Info__Linear__Manhattan__mad_or_cmad__All__Late":
         return InfoWeightedPNormDistance(
-            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
-            fit_info_ixs={9, 15})
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(),
+            fit_info_ixs={9, 15},
+        )
     if name == "Info__Linear__Manhattan__mad_or_cmad__Subset__Late":
         return InfoWeightedPNormDistance(
-            p=1, scale_function=mad_or_cmad, predictor=LinearPredictor(),
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(),
             fit_info_ixs={9, 15},
             subsetter=GMMSubsetter(),
         )
@@ -80,10 +90,10 @@ distance_names = [
     "Adaptive__Manhattan__cmad",
     "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad__All",
-    "Info__Linear__Manhattan__mad_or_cmad__Subset", 
-    "Info__Linear__Manhattan__mad_or_cmad__All__Late",
-    "Info__Linear__Manhattan__mad_or_cmad__Subset__Late",
+    # "Info__Linear__Manhattan__mad_or_cmad__All",
+    # "Info__Linear__Manhattan__mad_or_cmad__Subset",
+    # "Info__Linear__Manhattan__mad_or_cmad__All__Late",
+    # "Info__Linear__Manhattan__mad_or_cmad__Subset__Late",
 ]
 
 # test
@@ -110,9 +120,9 @@ def load_data(problem, data_dir):
 n_rep = 10
 
 # create data
-for problem_type in ["gaussian", "gk", "lv"]:
+for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
     for i_rep in range(n_rep):
-        kwargs ={"n_obs_error": 0}
+        kwargs = {"n_obs_error": 0}
 
         if problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
@@ -120,6 +130,10 @@ for problem_type in ["gaussian", "gk", "lv"]:
             problem = slad.PrangleGKErrorProblem(**kwargs)
         elif problem_type == "lv":
             problem = slad.PrangleLVErrorProblem(**kwargs)
+        elif problem_type == "cr-zero":
+            problem = slad.CRErrorZeroProblem(**kwargs)
+        elif problem_type == "cr-swap":
+            problem = slad.CRErrorSwapProblem(**kwargs)
         else:
             raise ValueError("Problem type not recognized.")
 
@@ -141,9 +155,13 @@ for problem_type in ["gaussian", "gk", "lv"]:
             problem = slad.PrangleGKErrorProblem(**kwargs)
         elif problem_type == "lv":
             problem = slad.PrangleLVErrorProblem(**kwargs)
+        elif problem_type == "cr-zero":
+            problem = slad.CRErrorZeroProblem(**kwargs)
+        elif problem_type == "cr-swap":
+            problem = slad.CRErrorSwapProblem(**kwargs)
         else:
             raise ValueError("Problem type not recognized.")
- 
+
         dir = os.path.dirname(os.path.realpath(__file__))
         data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
         os.makedirs(data_dir)
@@ -152,23 +170,31 @@ for problem_type in ["gaussian", "gk", "lv"]:
         save_data(data, data_dir)
 
 
-for problem_type in ["gaussian", "gk", "lv"]:
+for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
     print(problem_type)
 
     for i_rep in range(n_rep):
-        for kwargs in [{'n_obs_error': 0}, {}]:
+        for kwargs in [{"n_obs_error": 0}, {}]:
             if problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000
-                max_total_sim = 200000
+                max_total_sim = 100000
             elif problem_type == "gk":
                 problem = slad.PrangleGKErrorProblem(**kwargs)
                 pop_size = 1000
-                max_total_sim = 200000
+                max_total_sim = 100000
             elif problem_type == "lv":
                 problem = slad.PrangleLVErrorProblem(**kwargs)
                 pop_size = 200
                 max_total_sim = 50000
+            elif problem_type == "cr-zero":
+                problem = slad.CRErrorZeroProblem(**kwargs)
+                pop_size = 1000
+                max_total_sim = 100000
+            elif problem_type == "cr-swap":
+                problem = slad.CRErrorSwapProblem(**kwargs)
+                pop_size = 1000
+                max_total_sim = 100000
             else:
                 raise ValueError("Problem type not recognized.")
 
@@ -178,7 +204,9 @@ for problem_type in ["gaussian", "gk", "lv"]:
 
             # output folder
             dir = os.path.dirname(os.path.realpath(__file__))
-            data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
+            data_dir = os.path.join(
+                dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}"
+            )
 
             # get data
             data = load_data(problem, data_dir)
@@ -202,6 +230,10 @@ for problem_type in ["gaussian", "gk", "lv"]:
                     )
 
                 sampler = RedisEvalParallelSampler(host=host, port=port, batch_size=10)
-                abc = ABCSMC(model, prior, distance, sampler=sampler, population_size=pop_size)
+                abc = ABCSMC(
+                    model, prior, distance, sampler=sampler, population_size=pop_size
+                )
                 abc.new(db="sqlite:///" + db_file, observed_sum_stat=data)
                 abc.run(max_total_nr_simulations=max_total_sim)
+
+print("ABC out")
