@@ -12,7 +12,7 @@ except ImportError:
 
 
 class TumorProblem(Problem):
-    def __init__(self, obs_rep: int = 10, noisy: bool = False):
+    def __init__(self, obs_rep: int = 1, noisy: bool = False):
         self.p_keys = [
             "growth_curve",
             "extra_cellular_matrix_profile",
@@ -46,9 +46,9 @@ class TumorProblem(Problem):
 
         self.noisy: bool = noisy
         self.noise_levels = {
-            "growth_curve": 20,
-            "extra_cellular_matrix_profile": 0.1,
-            "proliferation_profile": 0.01,
+            "growth_curve": 15,
+            "extra_cellular_matrix_profile": 0.04,
+            "proliferation_profile": 0.006,
         }
 
     def get_prior(self) -> pyabc.Distribution:
@@ -83,7 +83,8 @@ class TumorProblem(Problem):
             ret = tumor2d.log_model(p)
             # reduce resolution
             for key in ["extra_cellular_matrix_profile", "proliferation_profile"]:
-                ret[key] = ret[key][::10]
+                ret[key] = ret[key][:650:10]
+                #ret[key] = ret[key][::10]
             # add measurement noise
             for key in ret.keys():
                 if self.noisy:

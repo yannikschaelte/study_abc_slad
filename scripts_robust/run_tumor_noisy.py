@@ -26,9 +26,9 @@ def get_distance(name: str) -> pyabc.Distance:
         return PNormDistance(p=1)
 
     if name == "Calibrated__Euclidean__mad":
-        return AdaptivePNormDistance(p=2, scale_function=mad, fit_scale_ixs=1)
+        return AdaptivePNormDistance(p=2, scale_function=mad, fit_scale_ixs={0})
     if name == "Calibrated__Manhattan__mad":
-        return AdaptivePNormDistance(p=1, scale_function=mad, fit_scale_ixs=1)
+        return AdaptivePNormDistance(p=1, scale_function=mad, fit_scale_ixs={0})
 
     if name == "Adaptive__Euclidean__mad":
         return AdaptivePNormDistance(p=2, scale_function=mad)
@@ -65,9 +65,9 @@ def get_distance(name: str) -> pyabc.Distance:
 
 
 distance_names = [
-    # "Euclidean",
+    #"Euclidean",
     #"Manhattan",
-    # "Calibrated__Euclidean__mad",
+    "Calibrated__Euclidean__mad",
     #"Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
     #"Adaptive__Manhattan__mad",
@@ -75,8 +75,8 @@ distance_names = [
     #"Adaptive__Manhattan__cmad",
     # "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad__Subset",
+    #"Info__Linear__Manhattan__mad_or_cmad",
+    #"Info__Linear__Manhattan__mad_or_cmad__Subset",
 ]
 
 # test

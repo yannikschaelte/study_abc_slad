@@ -14,12 +14,12 @@ distance_names = [
     #"Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
     #"Adaptive__Manhattan__mad",
-    "Adaptive__Euclidean__cmad",
+    #"Adaptive__Euclidean__cmad",
     #"Adaptive__Manhattan__cmad",
     #"Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad__Subset",
+    #"Info__Linear__Manhattan__mad_or_cmad",
+    #"Info__Linear__Manhattan__mad_or_cmad__Subset",
 ]
 
 def load_data(problem, data_dir):
@@ -64,7 +64,7 @@ def plot_sumstats(h, title, data, id_):
     fig.set_size_inches((10, 4))
     fig.tight_layout(rect=[0, 0, 1, 0.95])
 
-    plt.savefig(f"plot_robust/simulated_data_{id_}.png")
+    plt.savefig(f"plot_robust/tumor2d/fit_{id_}.png")
 
 
 data_dir = "data_robust"

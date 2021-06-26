@@ -63,7 +63,7 @@ class PrangleGKErrorProblem(PrangleGKProblem):
 
 
 class PrangleLVErrorProblem(PrangleLVProblem):
-    def __init__(self, n_obs_error: int = 3):
+    def __init__(self, n_obs_error: int = 2):
         self.n_obs_error: int = n_obs_error
 
     def get_obs(self) -> dict:
@@ -74,11 +74,13 @@ class PrangleLVErrorProblem(PrangleLVProblem):
     def errorfy(self, obs: dict) -> dict:
         if self.n_obs_error > 0:
             err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
-            obs["y"][err_ixs, :] = 0
+            obs["y"][err_ixs, : ] = 0#- obs["y"][err_ixs, : ]
+            #for err_ix in err_ixs:
+            #    obs["y"][err_ix, 0], obs["y"][err_ix, 1] = obs["y"][err_ix, 1], obs["y"][err_ix, 0]
         return obs
 
     def get_id(self) -> str:
-        return f"prangle_lv_{self.n_obs_error}"
+        return f"{super().get_id()}_{self.n_obs_error}"
 
 
 class CRErrorZeroProblem(CRProblem):
@@ -118,6 +120,7 @@ class CRErrorSwapProblem(CRProblem):
 
         ix0, ix1 = np.random.permutation(len(obs["y"]))[:2]
         obs["y"][ix0], obs["y"][ix1] = obs["y"][ix1], obs["y"][ix0]
+        #obs["y"][1], obs["y"][-2] = obs["y"][-2], obs["y"][1]
         return obs
 
     def get_id(self) -> str:

@@ -86,6 +86,7 @@ class PrangleLVProblem(Problem):
 
         x0 = np.array([50, 100])
 
+        # t_max = 16
         t_max = 32
         # output = ssa.output.FullOutput()
         ts = np.arange(2, 32, 2)

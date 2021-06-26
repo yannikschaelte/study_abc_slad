@@ -17,8 +17,8 @@ distance_names = [
     #"Adaptive__Manhattan__cmad",
     #"Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad",
-    "Info__Linear__Manhattan__mad_or_cmad__Subset",
+    #"Info__Linear__Manhattan__mad_or_cmad",
+    #"Info__Linear__Manhattan__mad_or_cmad__Subset",
 ]
 
 pretty_distances = {
@@ -40,10 +40,10 @@ for problem_type in [
                 problem = slad.TumorErrorProblem(**kwargs)
 
             slad.plot_1d_kdes_integrated(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}", pretty_labels=pretty_distances)
-            plt.savefig(f"plot_robust/{problem.get_id()}_{i_rep}_1d_kdes_integrated.png")
+            plt.savefig(f"plot_robust/tumor2d/{problem.get_id()}_{i_rep}_1d_kdes_integrated.png")
 
             slad.plot_cis(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
-            plt.savefig(f"plot_robust/{problem.get_id()}_{i_rep}_cis.png")
+            plt.savefig(f"plot_robust/tumor2d/{problem.get_id()}_{i_rep}_cis.png")
 
             slad.plot_1d_kdes(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
-            plt.savefig(f"plot_robust/{problem.get_id()}_{i_rep}_1d_kdes.png")
+            plt.savefig(f"plot_robust/tumor2d/{problem.get_id()}_{i_rep}_1d_kdes.png")

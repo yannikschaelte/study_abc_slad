@@ -26,9 +26,9 @@ def get_distance(name: str) -> pyabc.Distance:
         return PNormDistance(p=1)
 
     if name == "Calibrated__Euclidean__mad":
-        return AdaptivePNormDistance(p=2, scale_function=mad, fit_scale_ixs=1)
+        return AdaptivePNormDistance(p=2, scale_function=mad, fit_scale_ixs={0})
     if name == "Calibrated__Manhattan__mad":
-        return AdaptivePNormDistance(p=1, scale_function=mad, fit_scale_ixs=1)
+        return AdaptivePNormDistance(p=1, scale_function=mad, fit_scale_ixs={0})
 
     if name == "Adaptive__Euclidean__mad":
         return AdaptivePNormDistance(p=2, scale_function=mad)
@@ -80,8 +80,8 @@ def get_distance(name: str) -> pyabc.Distance:
 
 
 distance_names = [
-    "Euclidean",
-    "Manhattan",
+    #"Euclidean",
+    #"Manhattan",
     "Calibrated__Euclidean__mad",
     "Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
@@ -117,7 +117,7 @@ def load_data(problem, data_dir):
     return data
 
 
-n_rep = 10
+n_rep = 20
 
 # create data
 for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
@@ -140,11 +140,11 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
         dir = os.path.dirname(os.path.realpath(__file__))
         data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
         if os.path.exists(data_dir):
-            continue
-        os.makedirs(data_dir)
-
-        data = problem.get_obs()
-        save_data(data, data_dir)
+            data = load_data(problem, data_dir)
+        else:
+            os.makedirs(data_dir)
+            data = problem.get_obs()
+            save_data(data, data_dir)
 
         # errored data
 
@@ -164,6 +164,8 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
 
         dir = os.path.dirname(os.path.realpath(__file__))
         data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_{i_rep}")
+        if os.path.exists(data_dir):
+            continue
         os.makedirs(data_dir)
 
         data = problem.errorfy(data)
