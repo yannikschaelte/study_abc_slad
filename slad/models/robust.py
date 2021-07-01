@@ -149,14 +149,14 @@ class TumorErrorProblem(TumorProblem):
                 else:
                     raise ValueError(f"key {key} does not exist")
 
-                n_err = min(int(self.frac_error * n_obs), n_obs)
+                n_err = int(self.frac_error * n_obs)
                 for i_err in range(n_err):
-                    obs[key][i_err * 2 + 2], obs[key][n_obs - (i_err * 2 + 2) - 1] = (
-                        obs[key][n_obs - (i_err * 2 + 2) - 1],
-                        obs[key][i_err * 2 + 2],
+                    obs[key][i_err * 3 + 2], obs[key][n_obs - (i_err * 3 + 2) - 1] = (
+                        obs[key][n_obs - (i_err * 3 + 2) - 1],
+                        obs[key][i_err * 3 + 2],
                     )
-                err_ixs = np.random.permutation(n_obs)[:n_err]
-                obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
+                #err_ixs = np.random.permutation(n_obs)[:n_err]
+                #obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
         return obs
 
     def get_id(self) -> str:
