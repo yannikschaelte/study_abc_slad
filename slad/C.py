@@ -44,13 +44,15 @@ distance_colors = {
 }
 
 problem_labels = {
-    "gaussian": "Gaussian",
+    "uninf": "Uninformative",
+    "gaussian": "Bad replicates",
     "gk": "GK",
     "lv": "Lotka-Volterra",
     "cr-zero": "Conversion",
 }
 
 parameter_labels = {
+    "uninf": {"p0": r"$\theta$"},
     "gaussian": {"p0": r"$\theta$"},
     "gk": {"A": "A", "B": "B", "g": "g", "k": "k"},
     "lv": {"p1": r"$\theta_1$", "p2": r"$\theta_2$", "p3": r"$\theta_3$"},
@@ -70,34 +72,26 @@ data_xlabels = {
     "tumor": {
         "growth_curve": "Time [$d$]",
         "proliferation_profile": "Distance to rim [$10^{-5} m$]",
-        "extra_cellular_matrix_profile": "Distance to rim [$10^{-5} m$]"},
-    "gaussian": {
-        "y": "Replicate"},
-    "gk": {
-        "y": "Order statistic"},
-    "lv": {
-        "Prey": "Time [au]",
-        "Predator": "Time [au]"},
-    "cr-zero": {
-        "y": "Time [au]"},
-    "cr-swap": {
-        "y": "Time [au]"},
+        "extra_cellular_matrix_profile": "Distance to rim [$10^{-5} m$]",
+    },
+    "uninf": {"y": "Coordinate"},
+    "gaussian": {"y": "Replicate"},
+    "gk": {"y": "Order statistic"},
+    "lv": {"Prey": "Time [au]", "Predator": "Time [au]"},
+    "cr-zero": {"y": "Time [au]"},
+    "cr-swap": {"y": "Time [au]"},
 }
 
 data_ylabels = {
-    "gaussian": {
-        "y": "Value"},
-    "gk": {
-        "y": "Value"},
-    "lv": {
-        "Prey": "Number",
-        "Predator": "Number"},
-    "cr-zero": {
-        "y": "Species B"},
-    "cr-swap": {
-        "y": "Species B"},
+    "uninf": {"y": "Value"},
+    "gaussian": {"y": "Value"},
+    "gk": {"y": "Value"},
+    "lv": {"Prey": "Number", "Predator": "Number"},
+    "cr-zero": {"y": "Species B"},
+    "cr-swap": {"y": "Species B"},
     "tumor": {
         "growth_curve": "Spheroid radius [$\\mu m$]",
         "proliferation_profile": "Frac. proliferating cells",
-        "extra_cellular_matrix_profile": "ECM intensity"},
+        "extra_cellular_matrix_profile": "ECM intensity",
+    },
 }

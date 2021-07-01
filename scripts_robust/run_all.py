@@ -80,8 +80,8 @@ def get_distance(name: str) -> pyabc.Distance:
 
 
 distance_names = [
-    #"Euclidean",
-    #"Manhattan",
+    # "Euclidean",
+    # "Manhattan",
     "Calibrated__Euclidean__mad",
     "Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
@@ -120,10 +120,19 @@ def load_data(problem, data_dir):
 n_rep = 20
 
 # create data
-for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
+for problem_type in [
+    "uninf",
+    "gaussian",
+    "gk",
+    "lv",
+    "cr-zero",
+    "cr-swap",
+]:
     for i_rep in range(n_rep):
         kwargs = {"n_obs_error": 0}
 
+        if problem_type == "uninf":
+            problem = slad.UninfErrorProblem(**kwargs)
         if problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
@@ -149,6 +158,8 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
         # errored data
 
         kwargs = {}
+        if problem_type == "uninf":
+            problem = slad.UninfErrorProblem(**kwargs)
         if problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
@@ -172,11 +183,22 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
         save_data(data, data_dir)
 
 
-for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
+for problem_type in [
+    "uninf",
+    "gaussian",
+    "gk",
+    "lv",
+    "cr-zero",
+    "cr-swap",
+]:
     print(problem_type)
 
     for i_rep in range(n_rep):
         for kwargs in [{"n_obs_error": 0}, {}]:
+            if problem_type == "uninf":
+                problem = slad.UninfErrorProblem(**kwargs)
+                pop_size = 1000
+                max_total_sim = 100000
             if problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000

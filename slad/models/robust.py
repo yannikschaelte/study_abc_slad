@@ -43,6 +43,43 @@ class GaussianErrorProblem(Problem):
         return model
 
 
+class UninfErrorProblem(Problem):
+    def __init__(self, n_obs_error: int = 1):
+        self.n_obs_error: int = n_obs_error
+
+    def get_prior(self) -> pyabc.Distribution:
+        return pyabc.Distribution(p0=pyabc.RV("uniform", 0, 10))
+
+    def get_prior_bounds(self) -> dict:
+        return {"p0": (0, 10)}
+
+    def get_obs(self) -> dict:
+        model = self.get_model()
+        obs = model(self.get_gt_par())
+        obs = self.errorfy(obs)
+        return obs
+
+    def errorfy(self, obs: dict) -> dict:
+        if self.n_obs_error > 0:
+            obs["y"][-1] = 7
+        return obs
+
+    def get_gt_par(self) -> dict:
+        return {"p0": 5.0}
+
+    def get_id(self) -> str:
+        return f"uninf_{self.n_obs_error}"
+
+    def get_model(self) -> Callable:
+        def model(p) -> dict:
+            sim = p["p0"] + 1 * np.random.normal(size=11)
+            # last one is different
+            sim[-1] = 5 + 0.1 * np.random.normal()
+            return {"y": sim}
+
+        return model
+
+
 class PrangleGKErrorProblem(PrangleGKProblem):
     def __init__(self, n_obs_error: int = 1):
         self.n_obs_error: int = n_obs_error
@@ -74,8 +111,8 @@ class PrangleLVErrorProblem(PrangleLVProblem):
     def errorfy(self, obs: dict) -> dict:
         if self.n_obs_error > 0:
             err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
-            obs["y"][err_ixs, : ] = 0#- obs["y"][err_ixs, : ]
-            #for err_ix in err_ixs:
+            obs["y"][err_ixs, :] = 0  # - obs["y"][err_ixs, : ]
+            # for err_ix in err_ixs:
             #    obs["y"][err_ix, 0], obs["y"][err_ix, 1] = obs["y"][err_ix, 1], obs["y"][err_ix, 0]
         return obs
 
@@ -120,7 +157,7 @@ class CRErrorSwapProblem(CRProblem):
 
         ix0, ix1 = np.random.permutation(len(obs["y"]))[:2]
         obs["y"][ix0], obs["y"][ix1] = obs["y"][ix1], obs["y"][ix0]
-        #obs["y"][1], obs["y"][-2] = obs["y"][-2], obs["y"][1]
+        # obs["y"][1], obs["y"][-2] = obs["y"][-2], obs["y"][1]
         return obs
 
     def get_id(self) -> str:
@@ -155,8 +192,8 @@ class TumorErrorProblem(TumorProblem):
                         obs[key][n_obs - (i_err * 3 + 2) - 1],
                         obs[key][i_err * 3 + 2],
                     )
-                #err_ixs = np.random.permutation(n_obs)[:n_err]
-                #obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
+                # err_ixs = np.random.permutation(n_obs)[:n_err]
+                # obs[key][err_ixs] = np.random.permutation(obs[key][err_ixs])
         return obs
 
     def get_id(self) -> str:
