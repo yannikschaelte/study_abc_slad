@@ -113,11 +113,17 @@ def load_data(problem, data_dir):
 n_rep = 20
 
 
-for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
+for problem_type in [
+    "gaussian",
+    "gk", 
+    "lv",
+    "cr-zero",
+    # "cr-swap",
+]:
     print(problem_type)
 
     for i_rep in range(n_rep):
-        for kwargs in [{"n_obs_error": 0}]:
+        for kwargs in [{"n_obs_error": 0}, {}]:
             if problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000
@@ -155,7 +161,7 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
             out_dir = os.path.join(
                 dir,
                 "..",
-                "data_rej",
+                "data_hist",
                 f"{problem.get_id()}_{i_rep}",
             )
 
@@ -177,16 +183,16 @@ for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
                     distance.scale_log_file = os.path.join(
                         out_dir, f"log_scale_{distance_name}.json"
                     )
-                    # do not record rejected particles
-                    distance.all_particles_for_scale = False
                 if isinstance(distance, InfoWeightedPNormDistance):
                     distance.info_log_file = os.path.join(
                         out_dir, f"log_info_{distance_name}.json"
                     )
+                acceptor = pyabc.UniformAcceptor(use_complete_history=True)
 
                 sampler = RedisEvalParallelSampler(host=host, port=port, batch_size=10)
                 abc = ABCSMC(
-                    model, prior, distance, sampler=sampler, population_size=pop_size
+                    model, prior, distance, sampler=sampler, population_size=pop_size,
+                    acceptor=acceptor,
                 )
                 abc.new(db="sqlite:///" + db_file, observed_sum_stat=data)
                 abc.run(max_total_nr_simulations=max_total_sim)

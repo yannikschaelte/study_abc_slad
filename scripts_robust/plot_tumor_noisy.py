@@ -9,10 +9,10 @@ pyabc.settings.set_figure_params("pyabc")
 distance_names = [
     #"Euclidean",
     #"Manhattan",
-    #"Calibrated__Euclidean__mad",
+    "Calibrated__Euclidean__mad",
     #"Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
-    #"Adaptive__Manhattan__mad",
+    "Adaptive__Manhattan__mad",
     #"Adaptive__Euclidean__cmad",
     #"Adaptive__Manhattan__cmad",
     #"Adaptive__Euclidean__mad_or_cmad",
@@ -22,7 +22,9 @@ distance_names = [
 ]
 
 pretty_distances = {
+    "Calibrated__Euclidean__mad": "L2 + Calib. + MAD",
     "Adaptive__Euclidean__mad": "L2 + Adap. + MAD",
+    "Adaptive__Manhattan__mad": "L1 + Adap. + MAD",
     "Adaptive__Manhattan__mad_or_cmad": "L1 + Adap. + (C)MAD",
     "Info__Linear__Manhattan__mad_or_cmad": "L1 + Adap. + (C)MAD + Info",
     "Info__Linear__Manhattan__mad_or_cmad__Subset": "L1 + Adap. + (C)MAD + Info + Subset",
@@ -35,7 +37,10 @@ for problem_type in [
     "tumor",
 ]:
     for i_rep in range(n_rep):
-        for kwargs in [{'noisy': True, 'frac_error': 0}, {'noisy': True, 'frac_error': 0.1}]:
+        for kwargs in [
+            {'noisy': True, 'frac_error': 0},
+            {'noisy': True, 'frac_error': 0.1},
+        ]:
             if problem_type == "tumor":
                 problem = slad.TumorErrorProblem(**kwargs)
 

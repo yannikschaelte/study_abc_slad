@@ -70,7 +70,7 @@ distance_names = [
     "Calibrated__Euclidean__mad",
     #"Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
-    #"Adaptive__Manhattan__mad",
+    "Adaptive__Manhattan__mad",
     #"Adaptive__Euclidean__cmad",
     #"Adaptive__Manhattan__cmad",
     # "Adaptive__Euclidean__mad_or_cmad",
@@ -129,10 +129,15 @@ for i_rep in range(n_rep):
 
 for i_rep in range(n_rep):
 
-    for kwargs in reversed([{"noisy": True, "frac_error": 0}, {"noisy": True, "frac_error": 0.1}]):
+    for kwargs in [
+        {"noisy": True, "frac_error": 0},
+        {"noisy": True, "frac_error": 0.1},
+    ]:
         problem = slad.TumorErrorProblem(**kwargs)
         pop_size = 1000
         max_total_sim = 250000
+        #pop_size = 200
+        #max_total_sim = 50000
 
         model = problem.get_model()
         prior = problem.get_prior()

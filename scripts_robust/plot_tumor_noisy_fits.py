@@ -10,10 +10,10 @@ pyabc.settings.set_figure_params("pyabc")
 distance_names = [
     #"Euclidean",
     #"Manhattan",
-    #"Calibrated__Euclidean__mad",
+    "Calibrated__Euclidean__mad",
     #"Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
-    #"Adaptive__Manhattan__mad",
+    "Adaptive__Manhattan__mad",
     #"Adaptive__Euclidean__cmad",
     #"Adaptive__Manhattan__cmad",
     #"Adaptive__Euclidean__mad_or_cmad",
@@ -74,12 +74,15 @@ for problem_type in [
     "tumor",
 ]:
     for i_rep in range(n_rep):
-        for kwargs in [{'noisy': True, 'frac_error': 0}, {'noisy': True, 'frac_error': 0.1}]:
+        for kwargs in [
+            {'noisy': True, 'frac_error': 0},
+            {'noisy': True, 'frac_error': 0.1},
+        ]:
             if problem_type == "tumor":
                 problem = slad.TumorErrorProblem(**kwargs)
 
             dir = os.path.dirname(os.path.realpath(__file__))
-            data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_0")
+            data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_0_p200")
             data = load_data(problem, data_dir)
 
             for distance_name in distance_names:
