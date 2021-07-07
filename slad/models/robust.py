@@ -1,3 +1,5 @@
+"""Introduction of outliers to problems."""
+
 from typing import Callable
 import numpy as np
 
@@ -10,6 +12,8 @@ from .tumor import TumorProblem
 
 
 class GaussianErrorProblem(Problem):
+    """Informative replicates, some of which are outliers."""
+
     def __init__(self, n_obs: int = 10, n_obs_error: int = 2):
         self.n_obs: int = n_obs
         self.n_obs_error: int = n_obs_error
@@ -44,6 +48,8 @@ class GaussianErrorProblem(Problem):
 
 
 class UninfErrorProblem(Problem):
+    """Single uninformative outliers."""
+
     def __init__(self, n_obs_error: int = 1):
         self.n_obs_error: int = n_obs_error
 
@@ -81,6 +87,8 @@ class UninfErrorProblem(Problem):
 
 
 class PrangleGKErrorProblem(PrangleGKProblem):
+    """Introduction of outliers to the GK problem by Prangle et al.."""
+
     def __init__(self, n_obs_error: int = 1):
         self.n_obs_error: int = n_obs_error
 
@@ -100,6 +108,10 @@ class PrangleGKErrorProblem(PrangleGKProblem):
 
 
 class PrangleLVErrorProblem(PrangleLVProblem):
+    """Introduction of outliers to the Lotka-Volterra problem by
+    Prangle et al.
+    """
+
     def __init__(self, n_obs_error: int = 2):
         self.n_obs_error: int = n_obs_error
 
@@ -121,6 +133,8 @@ class PrangleLVErrorProblem(PrangleLVProblem):
 
 
 class CRErrorZeroProblem(CRProblem):
+    """Introduction of zero-value outliers to the conversion reaction problem."""
+
     def __init__(self, noise_std: float = 0.02, n_obs_error: int = 1):
         super().__init__(noise_std=noise_std)
         self.n_obs_error: int = n_obs_error
@@ -142,6 +156,10 @@ class CRErrorZeroProblem(CRProblem):
 
 
 class CRErrorSwapProblem(CRProblem):
+    """Alternative outliers in the conversion reaction problem by observable
+    swaps.
+    """
+
     def __init__(self, noise_std: float = 0.02, n_obs_error: int = 1):
         super().__init__(noise_std=noise_std)
         self.n_obs_error: int = n_obs_error
@@ -165,6 +183,8 @@ class CRErrorSwapProblem(CRProblem):
 
 
 class TumorErrorProblem(TumorProblem):
+    """Introduction of outliers to the tumor problem."""
+
     def __init__(self, obs_rep: int = 1, noisy: bool = False, frac_error: float = 0.1):
         super().__init__(obs_rep=obs_rep, noisy=noisy)
         self.frac_error: float = frac_error

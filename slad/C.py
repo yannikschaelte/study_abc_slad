@@ -1,3 +1,5 @@
+"""Constant definitions."""
+
 distance_names = [
     "Calibrated__Euclidean__mad",
     "Adaptive__Euclidean__mad",
