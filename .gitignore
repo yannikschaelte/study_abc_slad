@@ -138,3 +138,7 @@ dmypy.json
 /tumor2d
 /*old
 
+# data
+/data_robust*
+/data_hist*
+/data_rej*
