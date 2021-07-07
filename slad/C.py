@@ -45,7 +45,7 @@ distance_colors = {
 
 problem_labels = {
     "uninf": "Uninformative",
-    "gaussian": "Bad replicates",
+    "gaussian": "Replicates",
     "gk": "GK",
     "lv": "Lotka-Volterra",
     "cr-zero": "Conversion",
@@ -55,8 +55,8 @@ parameter_labels = {
     "uninf": {"p0": r"$\theta$"},
     "gaussian": {"p0": r"$\theta$"},
     "gk": {"A": "A", "B": "B", "g": "g", "k": "k"},
-    "lv": {"p1": r"$\theta_1$", "p2": r"$\theta_2$", "p3": r"$\theta_3$"},
-    "cr-zero": {"p0": r"$\theta_1$", "p1": r"$\theta_2$"},
+    "lv": {"p1": r"$\log~\theta_1$", "p2": r"$\log~\theta_2$", "p3": r"$\log~\theta_3$"},
+    "cr-zero": {"p0": r"$\log~\theta_1$", "p1": r"$\log~\theta_2$"},
     "tumor": {
         "log_division_rate": "log(div. rate)",
         "log_division_depth": "log(div. depth)",
