@@ -36,6 +36,8 @@ data_ylabels = {
         "growth_curve": "Spheroid radius [$\\mu m$]",
         "proliferation_profile": "Frac. proliferating cells",
         "extra_cellular_matrix_profile": "ECM intensity"},
+    "uninf": {
+        "y": "Value"},
     "gaussian": {
         "y": "Value"},
     "gk": {
@@ -53,6 +55,8 @@ data_xlabels = {
         "growth_curve": "Time [$d$]",
         "proliferation_profile": "Distance to rim [$\\mu m$]",
         "extra_cellular_matrix_profile": "Distance to rim [$\\mu m$]"},
+    "uninf": {
+        "y": "Coordinate"},
     "gaussian": {
         "y": "Replicate"},
     "gk": {
@@ -123,15 +127,18 @@ data_dir = "data_robust"
 n_rep = 20
 
 for problem_type in [
+    "uninf",
     "gaussian",
     "gk",
     "lv",
     "CRZero",
-    "CRSwap",
+    #"CRSwap",
 ]:
     for i_rep in range(n_rep):
         for kwargs in [{'n_obs_error': 0}, {}]:
-            if problem_type == "gaussian":
+            if problem_type == "uninf":
+                problem = slad.UninfErrorProblem(**kwargs)
+            elif problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
             elif problem_type == "gk":
                 problem = slad.PrangleGKErrorProblem(**kwargs)

@@ -133,7 +133,7 @@ for problem_type in [
 
         if problem_type == "uninf":
             problem = slad.UninfErrorProblem(**kwargs)
-        if problem_type == "gaussian":
+        elif problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
             problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -160,7 +160,7 @@ for problem_type in [
         kwargs = {}
         if problem_type == "uninf":
             problem = slad.UninfErrorProblem(**kwargs)
-        if problem_type == "gaussian":
+        elif problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
             problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -199,7 +199,7 @@ for problem_type in [
                 problem = slad.UninfErrorProblem(**kwargs)
                 pop_size = 1000
                 max_total_sim = 100000
-            if problem_type == "gaussian":
+            elif problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000
                 max_total_sim = 100000

@@ -3,6 +3,7 @@ import numpy as np
 import logging
 
 import slad
+import pyabc
 from pyabc import ABCSMC, RedisEvalParallelSampler
 from pyabc.distance import *
 from pyabc.sumstat import *
@@ -75,6 +76,12 @@ for i_rep in range(n_rep):
                 )
             ),
         ),
+        "Adaptive_MLP_Initial_Many": AdaptivePNormDistance(
+            p=1, scale_function=mad,
+            sumstat=PredictorSumstat(MLPPredictor(
+                hidden_layer_sizes=(50, 50, 50), solver="adam", max_iter=500),
+                fit_ixs={0}),
+        ),
         # info distances
         "Info_MS": InfoWeightedPNormDistance(
             predictor=ModelSelectionPredictor(
@@ -102,17 +109,24 @@ for i_rep in range(n_rep):
                 data_dir, f"log_info_{distance_label}_{i_rep}.json"
             )
 
+        if "MLP_Initial_Many" in distance_label:
+            population_size = pyabc.ConstantPopulationSize(nr_particles=pop_size, nr_calibration_particles=100000)
+            max_total_nr_simulations = max_total_sim + 100000
+        else:
+            population_size = pop_size
+            max_total_nr_simulations = max_total_sim
+
         sampler = RedisEvalParallelSampler(host=host, port=port, batch_size=10)
         abc = ABCSMC(
             model,
             prior,
             distance,
             sampler=sampler,
-            population_size=pop_size,
+            population_size=population_size,
         )
         abc.new(db="sqlite:///" + db_file, observed_sum_stat=data)
         abc.run(
-            max_total_nr_simulations=max_total_sim,
+            max_total_nr_simulations=max_total_nr_simulations,
         )
 
 print(f"ABC {id} out")

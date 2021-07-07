@@ -113,12 +113,23 @@ def load_data(problem, data_dir):
 n_rep = 20
 
 
-for problem_type in ["gaussian", "gk", "lv", "cr-zero", "cr-swap"]:
+for problem_type in [
+    "uninf",
+    "gaussian",
+    "gk",
+    "lv",
+    "cr-zero",
+    "cr-swap",
+]:
     print(problem_type)
 
     for i_rep in range(n_rep):
         for kwargs in [{"n_obs_error": 0}]:
-            if problem_type == "gaussian":
+            if problem_type == "uninf":
+                problem = slad.UninfErrorProblem(**kwargs)
+                pop_size = 1000
+                max_total_sim = 100000
+            elif problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000
                 max_total_sim = 100000

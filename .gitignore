@@ -131,14 +131,12 @@ dmypy.json
 # pycharm
 .idea/
 
+# various folders
 /out_*/
-*.db
 /miniconda3
 /pyabc
 /tumor2d
 /*old
 
 # data
-/data_robust*
-/data_hist*
-/data_rej*
+*.db

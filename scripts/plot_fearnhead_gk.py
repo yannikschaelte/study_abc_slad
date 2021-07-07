@@ -15,6 +15,7 @@ labels = [
     "Adaptive_Linear_initial",
     "Adaptive_Linear",
     "Adaptive_MS",
+    "Adaptive_MLP_Initial_Many",
     # info distances
     "Info_MS",
     "Info_Linear",
