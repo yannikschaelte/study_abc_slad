@@ -7,6 +7,8 @@ import pyabc
 
 pyabc.settings.set_figure_params("pyabc")
 
+alpha = 1 / 1e2
+
 distance_names = [
     #"Calibrated__Euclidean__mad",
     "Adaptive__Euclidean__mad",
@@ -30,10 +32,10 @@ def plot_sumstats(
     color = slad.C.distance_colors[distance_name]
     def f_plot(sum_stat, weight, arr_ax, **kwargs):
         for i, key in enumerate(sum_stat.keys()):
-            arr_ax[i].plot(sum_stat[key], '-', color=color, alpha=5*1/5e2)
+            arr_ax[i].plot(sum_stat[key], '-', color=color, alpha=alpha)
     def f_plot_lv(sum_stat, weight, arr_ax, **kwargs):
-        arr_ax[0].plot(sum_stat["y"][:, 0], '-', color=color, alpha=5*1/5e2)
-        arr_ax[1].plot(sum_stat["y"][:, 1], '-', color=color, alpha=5*1/5e2)
+        arr_ax[0].plot(sum_stat["y"][:, 0], '-', color=color, alpha=alpha)
+        arr_ax[1].plot(sum_stat["y"][:, 1], '-', color=color, alpha=alpha)
 
     def f_plot_mean(sum_stats, weights, arr_ax, **kwargs):
         aggregated = {}
@@ -71,21 +73,24 @@ fig = plt.figure(
     figsize=(14, 5),
     #constrained_layout=True,
 )
-axes_all = fig.subplots(nrows=2, ncols=5, gridspec_kw={"width_ratios": [3, 3, 3, 2, 2]})
+axes_all = fig.subplots(nrows=2, ncols=6, gridspec_kw={"width_ratios": [3, 3, 3, 3, 2, 2]})
 
 configs = [
+    ("uninf", 0),
     ("gaussian", 19),
     ("cr-zero", 2),
     ("gk", 16),
     ("lv", 1),
 ]
 
-axes_fits = [[axes_all[0, 0]], [axes_all[0, 1]], [axes_all[0, 2]], axes_all[0, 3:]]
+axes_fits = [[axes_all[0, 0]], [axes_all[0, 1]], [axes_all[0, 2]], [axes_all[0, 3]], axes_all[0, 4:]]
 
 for i_subfig, (arr_ax, (problem_type, i_rep)) in enumerate(zip(axes_fits, configs)):
 
     kwargs = {}
-    if problem_type == "gaussian":
+    if problem_type == "uninf":
+        problem = slad.UninfErrorProblem(**kwargs)
+    elif problem_type == "gaussian":
         problem = slad.GaussianErrorProblem(**kwargs)
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -126,7 +131,7 @@ for i_subfig, (arr_ax, (problem_type, i_rep)) in enumerate(zip(axes_fits, config
         arr_ax[1].set_ylabel("# Predator")
         #arr_ax[1].set_xlabel("Time [au]")
 
-    if i_subfig == 0:
+    if i_subfig == 1:
         arr_ax[0].legend()
 
     arr_ax[0].text(
@@ -136,13 +141,15 @@ for i_subfig, (arr_ax, (problem_type, i_rep)) in enumerate(zip(axes_fits, config
     # subfig.suptitle(slad.C.problem_labels[problem_type])
 
 
-axes_weights = [[axes_all[1, 0]], [axes_all[1, 1]], [axes_all[1, 2]], axes_all[1, 3:]]
+axes_weights = [[axes_all[1, 0]], [axes_all[1, 1]], [axes_all[1, 2]], [axes_all[1, 3]], axes_all[1, 4:]]
 
 for i_subfig, (arr_ax, (problem_type, i_rep)) in enumerate(zip(axes_weights, configs)):
     colors = [slad.C.distance_colors[dname] for dname in distance_names]
 
     kwargs = {}
-    if problem_type == "gaussian":
+    if problem_type == "uninf":
+        problem = slad.UninfErrorProblem(**kwargs)
+    elif problem_type == "gaussian":
         problem = slad.GaussianErrorProblem(**kwargs)
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -196,13 +203,13 @@ for i_subfig, (arr_ax, (problem_type, i_rep)) in enumerate(zip(axes_weights, con
         ax.set_ylabel(None)
     if i_subfig == 0:
         arr_ax[0].set_ylabel("Weight")
-    if i_subfig == 0:
+    if i_subfig == 1:
         arr_ax[0].legend()
 
     # subfig.suptitle(slad.C.problem_labels[problem_type])
 
 fig.tight_layout()
 
-for fmt in ["svg", "png"]:
-    plt.savefig(f"figures_robust/figure_fits_and_weights_base.{fmt}", format=fmt, dpi=200)
+for fmt in ["pdf", "png"]:
+    plt.savefig(f"figures_robust/figure_fits_and_weights.{fmt}", format=fmt, dpi=200)
 
