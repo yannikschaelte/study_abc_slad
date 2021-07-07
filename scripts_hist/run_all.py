@@ -82,13 +82,13 @@ def get_distance(name: str) -> pyabc.Distance:
 distance_names = [
     # "Euclidean",
     # "Manhattan",
-    # "Calibrated__Euclidean__mad",
-    # "Calibrated__Manhattan__mad",
+    "Calibrated__Euclidean__mad",
+    "Calibrated__Manhattan__mad",
     "Adaptive__Euclidean__mad",
-    # "Adaptive__Manhattan__mad",
-    # "Adaptive__Euclidean__cmad",
-    # "Adaptive__Manhattan__cmad",
-    # "Adaptive__Euclidean__mad_or_cmad",
+    "Adaptive__Manhattan__mad",
+    "Adaptive__Euclidean__cmad",
+    "Adaptive__Manhattan__cmad",
+    "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
     # "Info__Linear__Manhattan__mad_or_cmad__All",
     # "Info__Linear__Manhattan__mad_or_cmad__Subset",
@@ -114,6 +114,7 @@ n_rep = 20
 
 
 for problem_type in [
+    "uninf",
     "gaussian",
     "gk", 
     "lv",
@@ -124,7 +125,11 @@ for problem_type in [
 
     for i_rep in range(n_rep):
         for kwargs in [{"n_obs_error": 0}, {}]:
-            if problem_type == "gaussian":
+            if problem_type == "uninf":
+                problem = slad.UninfErrorProblem(**kwargs)
+                pop_size = 1000
+                max_total_sim = 100000
+            elif problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
                 pop_size = 1000
                 max_total_sim = 100000
