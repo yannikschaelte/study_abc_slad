@@ -24,7 +24,9 @@ def create_vals(problem_type):
             means, stds, gt_par = pickle.load(f)
             return means, stds, gt_par
 
-    if problem_type == "gaussian":
+    if problem_type == "uninf":
+        problem = slad.UninfErrorProblem()
+    elif problem_type == "gaussian":
         problem = slad.GaussianErrorProblem()
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem()
@@ -34,6 +36,8 @@ def create_vals(problem_type):
         problem = slad.CRErrorZeroProblem()
     elif problem_type == "cr-swap":
         problem = slad.CRErrorSwapProblem()
+    else:
+        raise ValueError()
 
     gt_par = problem.get_gt_par()
 
@@ -43,7 +47,9 @@ def create_vals(problem_type):
     vals = np.full(shape=(n_dist, 2, n_par, n_rep), fill_value=np.nan)
 
     for i_mode, kwargs in enumerate([{'n_obs_error': 0}, {}]):
-        if problem_type == "gaussian":
+        if problem_type == "uninf":
+            problem = slad.UninfErrorProblem(**kwargs)
+        elif problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
             problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -126,14 +132,15 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
                         i_dist - (-1)**i * 0.2,
                         f"{means[i_dist, i, i_par]:.3f}",
                         fontdict={"fontsize": fontsize_small},
-                        verticalalignment="center",
+                        verticalalignment="center",#"bottom" if i == 0 else "top",
                         horizontalalignment="right")
 
         #ax.set_xlabel("RMSE")
         ax.set_title(slad.C.parameter_labels[problem_type][key], fontsize=fontsize)
         ax.axhline(y=3.5, color="grey", linestyle="--")
 
-        plt.setp(ax.get_xticklabels(), fontsize=fontsize)
+        plt.setp(ax.get_xticklabels(), fontsize=fontsize_small)
+        plt.setp(ax.get_xminorticklabels(), visible=False)
 
     # fig.suptitle(problem_labels[problem_type])
     #fig.tight_layout()
@@ -142,10 +149,10 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
     #plt.savefig(f"plot_robust/rmse_{problem_type}.png")
 
 fig = plt.figure(figsize=(14, 4))
-width_ratios = [2, 2, 4, 8, 6]
-subfigs = fig.subfigures(nrows=1, ncols=5, wspace=0.01, width_ratios=width_ratios)
+width_ratios = [2.2, 2.2, 2.2, 4, 8, 5.5]
+subfigs = fig.subfigures(nrows=1, ncols=6, wspace=0.01, width_ratios=width_ratios)
 
-for i, problem_type in enumerate(["gaussian", "cr-zero", "gk", "lv"]):
+for i, problem_type in enumerate(["uninf", "gaussian", "cr-zero", "gk", "lv"]):
     plot_rmse(problem_type, log=True, fig=subfigs[i+1], ylabels=False,
               width = width_ratios[i+1])
 
@@ -179,7 +186,7 @@ subfigs[0].subplots_adjust(left=padding / 4 / width_ratios[0], right=1 - padding
 
 #fig.tight_layout()
 
-fig.suptitle("RMSE")
+# fig.suptitle("RMSE")
 
-for fmt in ["svg", "png"]:
+for fmt in ["pdf", "png"]:
     plt.savefig(f"figures_robust/figure_rmse.{fmt}", format=fmt, dpi=200)

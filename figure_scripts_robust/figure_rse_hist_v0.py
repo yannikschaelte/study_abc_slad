@@ -16,6 +16,10 @@ fontsize = 10
 fontsize_small = 8
 padding = 0.3
 
+distance_names = [
+    "Adaptive__Euclidean__mad",
+    "Adaptive__Manhattan__mad_or_cmad",
+]
 
 def create_vals(problem_type):
     pickle_file = f"figures_robust/data_{problem_type}_hist.pickle"
@@ -24,9 +28,7 @@ def create_vals(problem_type):
             means, stds, gt_par = pickle.load(f)
             return means, stds, gt_par
 
-    if problem_type == "uninf":
-        problem = slad.UninfErrorProblem()
-    elif problem_type == "gaussian":
+    if problem_type == "gaussian":
         problem = slad.GaussianErrorProblem()
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem()
@@ -36,20 +38,16 @@ def create_vals(problem_type):
         problem = slad.CRErrorZeroProblem()
     elif problem_type == "cr-swap":
         problem = slad.CRErrorSwapProblem()
-    else:
-        raise ValueError()
 
     gt_par = problem.get_gt_par()
 
     n_par = len(gt_par)
-    n_dist = len(slad.C.distance_names)
+    n_dist = len(distance_names)
 
     vals = np.full(shape=(n_dist, 2, n_par, n_rep), fill_value=np.nan)
 
-    for i_mode, kwargs in enumerate([{'n_obs_error': 0}, {}]):
-        if problem_type == "uninf":
-            problem = slad.UninfErrorProblem(**kwargs)
-        elif problem_type == "gaussian":
+    for i_mode, kwargs in enumerate([{"n_obs_error": 0}, {}]):
+        if problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
             problem = slad.PrangleGKErrorProblem(**kwargs)
@@ -60,10 +58,13 @@ def create_vals(problem_type):
         elif problem_type == "cr-swap":
             problem = slad.CRErrorSwapProblem(**kwargs)
 
-        for i_dist, distance_name in enumerate(slad.C.distance_names):
+        for i_dist, distance_name in enumerate(distance_names):
             for i_rep in range(n_rep):
+                # in this figure only ones using the full history
+                data_dir = "data_hist"
+
                 h = pyabc.History(
-                    f"sqlite:///data_hist/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
+                    f"sqlite:///{data_dir}/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
                     create=False)
 
                 df, w = h.get_distribution(t=h.max_t)
@@ -90,15 +91,15 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
     if n_par == 1:
         axes = [axes]
 
-    n_dist = len(slad.C.distance_names)
-    colors = list(slad.C.distance_colors.values())
+    n_dist = len(distance_names)
+    colors = [slad.C.distance_colors[dname] for dname in distance_names]
     for i_par, key in enumerate(gt_par.keys()):
         ax = axes[i_par]
         ys = np.arange(n_dist)
         if ylabels and i_par == 0:
             ax.set_yticks(np.arange(n_dist))
             ax.set_yticklabels([
-                slad.C.distance_labels_short[dname] for dname in slad.C.distance_names],
+                slad.C.distance_labels_short[dname] for dname in distance_names],
                 fontdict={"fontsize": fontsize_small})
             ax.xaxis.set_ticks_position("none")
         else:
@@ -128,31 +129,30 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
                     pos_x = means[i_dist, i, i_par] * (1 + 1 / max_val)
                 else:
                     pos_x = means[i_dist, i, i_par] + (1  + 1 / max_val)
-                ax.text(max_val * 0.9,
+                ax.text(max_val * 0.99,
                         i_dist - (-1)**i * 0.2,
                         f"{means[i_dist, i, i_par]:.3f}",
                         fontdict={"fontsize": fontsize_small},
-                        verticalalignment="center",#"bottom" if i == 0 else "top",
+                        verticalalignment="center",
                         horizontalalignment="right")
 
         #ax.set_xlabel("RMSE")
         ax.set_title(slad.C.parameter_labels[problem_type][key], fontsize=fontsize)
-        ax.axhline(y=3.5, color="grey", linestyle="--")
+        #ax.axhline(y=3.5, color="grey", linestyle="--")
 
-        plt.setp(ax.get_xticklabels(), fontsize=fontsize_small)
-        plt.setp(ax.get_xminorticklabels(), visible=False)
+        plt.setp(ax.get_xticklabels(), fontsize=fontsize)
 
     # fig.suptitle(problem_labels[problem_type])
     #fig.tight_layout()
     fig.suptitle(slad.C.problem_labels[problem_type], x=0.5)
-    fig.subplots_adjust(left=padding / width, right=1 - padding / width)
+    fig.subplots_adjust(left=padding / width, right=1 - padding / width, top=0.8)
     #plt.savefig(f"plot_robust/rmse_{problem_type}.png")
 
-fig = plt.figure(figsize=(14, 4))
-width_ratios = [2.2, 2.2, 2.2, 4, 8, 5.5]
-subfigs = fig.subfigures(nrows=1, ncols=6, wspace=0.01, width_ratios=width_ratios)
+fig = plt.figure(figsize=(14, 2))
+width_ratios = [2, 2, 4, 8, 6]
+subfigs = fig.subfigures(nrows=1, ncols=5, wspace=0.01, width_ratios=width_ratios)
 
-for i, problem_type in enumerate(["uninf", "gaussian", "cr-zero", "gk", "lv"]):
+for i, problem_type in enumerate(["gaussian", "cr-zero", "gk", "lv"]):
     plot_rmse(problem_type, log=True, fig=subfigs[i+1], ylabels=False,
               width = width_ratios[i+1])
 
@@ -161,8 +161,8 @@ subfigs[-1].subplots_adjust(left=padding / width_ratios[-1],
                             right=1 - padding / 4 / width_ratios[-1])
 
 ax = subfigs[0].subplots()
-for i_dist, distance_name in enumerate(reversed(slad.C.distance_names)):
-    ax.text(0, 0.07+0.94*(i_dist / len(slad.C.distance_names)),
+for i_dist, distance_name in enumerate(reversed(distance_names)):
+    ax.text(0, 0.2+0.99*(i_dist / len(distance_names)),
             slad.C.distance_labels_short[distance_name],
             transform=ax.transAxes,
             fontsize=fontsize)
@@ -188,5 +188,5 @@ subfigs[0].subplots_adjust(left=padding / 4 / width_ratios[0], right=1 - padding
 
 # fig.suptitle("RMSE")
 
-for fmt in ["pdf", "png"]:
+for fmt in ["svg", "png"]:
     plt.savefig(f"figures_robust/figure_rmse_hist.{fmt}", format=fmt, dpi=200)

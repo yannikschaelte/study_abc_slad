@@ -66,21 +66,21 @@ axes_all = fig.subplots(nrows=2, ncols=3)
 problem_type = "tumor"
 problem = slad.TumorErrorProblem(noisy=True, frac_error=frac_error)
 
-dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(dir, "..", "data_robust", f"{problem.get_id()}_0_p200")
+data_dir = os.path.join("data_robust", f"{problem.get_id()}_0_p200")
+db_dir = os.path.join("data_hist", f"{problem.get_id()}_0_p200")
 data = load_data(problem, data_dir)
 
 arr_ax = axes_all[0, :]
 
 for distance_name in distance_names:
     h = pyabc.History(
-        "sqlite:///" + os.path.join(data_dir, f"db_{distance_name}.db"),
+        "sqlite:///" + os.path.join(db_dir, f"db_{distance_name}.db"),
         create=False)
     plot_sumstats(h, data, problem_type, distance_name, arr_ax, show_mean=False)
 
 for distance_name in distance_names:
     h = pyabc.History(
-        "sqlite:///" + os.path.join(data_dir, f"db_{distance_name}.db"),
+        "sqlite:///" + os.path.join(db_dir, f"db_{distance_name}.db"),
         create=False)
     plot_sumstats(h, data, problem_type, distance_name, arr_ax, show_distribution=False)
 
@@ -132,5 +132,5 @@ for ax in axes_all[0, :].flatten():
 fig.tight_layout()
 
 for fmt in ["pdf", "png"]:
-    plt.savefig(f"figures_robust/figure_tumor_fits_and_weights_{frac_error}.{fmt}", format=fmt, dpi=200)
+    plt.savefig(f"figures_robust/figure_tumor_fits_and_weights_{frac_error}_hist.{fmt}", format=fmt, dpi=200)
 

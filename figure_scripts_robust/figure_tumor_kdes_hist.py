@@ -38,7 +38,7 @@ arr_ax = fig.subplots(nrows=2, ncols=len(pars), gridspec_kw={"hspace": 0.15})
 
 for distance_name in distance_names:
     h = pyabc.History(
-        f"sqlite:///data_robust/{problem.get_id()}_0_p200/db_{distance_name}.db",
+        f"sqlite:///data_hist/{problem.get_id()}_0_p200/db_{distance_name}.db",
         create=False)
     df, w = h.get_distribution()
     for i_par, par in enumerate(pars):
@@ -52,7 +52,7 @@ for distance_name in distance_names:
         )
 
     h = pyabc.History(
-        f"sqlite:///data_robust/{problem_error.get_id()}_0_p200/db_{distance_name}.db",
+        f"sqlite:///data_hist/{problem_error.get_id()}_0_p200/db_{distance_name}.db",
         create=False)
     df, w = h.get_distribution()
     for i_par, par in enumerate(pars):
@@ -79,4 +79,4 @@ for i_err, label in enumerate(["No outliers", "20% of data points interchanged"]
 # fig.tight_layout()
 
 for fmt in ["pdf", "png"]:
-    plt.savefig(f"figures_robust/figure_tumor_kdes.{fmt}", format=fmt, dpi=200)
+    plt.savefig(f"figures_robust/figure_tumor_kdes_hist.{fmt}", format=fmt, dpi=200)
