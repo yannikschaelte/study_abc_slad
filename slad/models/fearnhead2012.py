@@ -1,5 +1,12 @@
-"""Models from Fearnhead, Prangle 2012, Constructing Summary Statistics for
-ABC.
+"""Models based on [#fearnheadpra2012]_.
+
+.. [#fearnheadpra2012]
+    Fearnhead, Paul, and Dennis Prangle.
+    "Constructing summary statistics for approximate Bayesian computation:
+    semi‐automatic approximate Bayesian computation."
+    Journal of the Royal Statistical Society: Series B
+    (Statistical Methodology)
+    74.3 (2012): 419-474.
 """
 
 import numpy as np
@@ -7,10 +14,12 @@ from typing import Any, Callable, Dict
 
 from pyabc import Distribution, RV
 import pyabc
-from .base import Problem, gk
+from .base import Problem
+from .util import gk
 
 
 class FearnheadGKProblem(Problem):
+    """g-and-k distribution problem as used in Fearnhead et al.."""
 
     def __init__(self, n_sample: int = 10000, n_sumstat: int = 100):
         self.n_sample: int = n_sample
@@ -41,7 +50,7 @@ class FearnheadGKProblem(Problem):
         )
 
     def get_prior_bounds(self) -> dict:
-        return {"A": (2.8, 3.2), "B": (0.8, 1.2), "g": (0, 4), "k": (0, 2)}
+        # return {"A": (2.8, 3.2), "B": (0.8, 1.2), "g": (0, 4), "k": (0, 2)}
         return {key: (0, 10) for key in ["A", "B", "g", "k"]}
 
     def get_obs(self) -> dict:
@@ -63,6 +72,9 @@ class FearnheadGKProblem(Problem):
 
 
 class FearnheadLVProblem(Problem):
+    """Lotka-Volterra problem similar to its use in Fearnhead et al.
+    (the prior may be different).
+    """
 
     def __init__(self, obs_rep: int = 100):
         self.obs_rep: int = obs_rep

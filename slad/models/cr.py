@@ -1,3 +1,12 @@
+"""Conversion reaction problem, based on [#maierloo2017]_.
+
+.. [#maierloo2017]
+    Maier, Corinna, Carolin Loos, and Jan Hasenauer.
+    "Robust parameter estimation for dynamical systems from outlier-corrupted
+    data."
+    Bioinformatics 33.5 (2017): 718-725.
+"""
+
 import numpy as np
 from typing import Callable
 
@@ -7,10 +16,15 @@ from .base import Problem
 
 
 class CRProblem(Problem):
+    """Conversion reaction ODE-based problem."""
+
     def __init__(
         self,
         noise_std: float = 0.02,
     ):
+        """
+        :par noise_std: Noise standard deviation.
+        """
         self.p_true = {"p0": -1.5, "p1": -1.5}
         self.limits = {"p0": (-3.5, 1), "p1": (-3.5, 1)}
         self.noise_std = noise_std
