@@ -112,7 +112,7 @@ class PrangleLVErrorProblem(PrangleLVProblem):
     Prangle et al.
     """
 
-    def __init__(self, n_obs_error: int = 3):
+    def __init__(self, n_obs_error: int = 6):
         self.n_obs_error: int = n_obs_error
 
     def get_obs(self) -> dict:
@@ -122,9 +122,19 @@ class PrangleLVErrorProblem(PrangleLVProblem):
 
     def errorfy(self, obs: dict) -> dict:
         if self.n_obs_error > 0:
-            err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
+            if self.n_obs_error == 3:
+                err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: self.n_obs_error]
             # obs["y"][err_ixs, :] = 0  # - obs["y"][err_ixs, : ]
-            obs["y"][err_ixs, :] = -obs["y"][err_ixs, :]
+                obs["y"][err_ixs, :] = -obs["y"][err_ixs, :]
+            elif self.n_obs_error == 4:
+                err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: 3]
+                obs["y"][err_ixs, :] = 0
+            elif self.n_obs_error == 5:
+                err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: 3]
+                obs["y"][err_ixs, :] = np.flip(obs["y"][err_ixs, :])
+            elif self.n_obs_error == 6:
+                err_ixs = np.random.permutation(len(obs["y"][:, 0]))[: 3]
+                obs["y"][err_ixs, :] *= 10
             # for err_ix in err_ixs:
             #    obs["y"][err_ix, 0], obs["y"][err_ix, 1] = obs["y"][err_ix, 1], obs["y"][err_ix, 0]
         return obs

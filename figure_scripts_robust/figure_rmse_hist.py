@@ -76,8 +76,8 @@ def create_vals(problem_type):
     means = np.mean(vals, axis=3)
     stds = np.std(vals, axis=3)
 
-    with open(pickle_file, "wb") as f:
-        pickle.dump((means, stds, gt_par), f)
+    #with open(pickle_file, "wb") as f:
+    #    pickle.dump((means, stds, gt_par), f)
 
     return means, stds, gt_par
 
