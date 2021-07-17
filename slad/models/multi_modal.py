@@ -1,12 +1,15 @@
+"""Problems to test algorithms on multi-modal parameter landscapes."""
+
 from typing import Callable
 import numpy as np
 from pyabc import Distribution, RV
+
 from .base import Problem
 
 
 class MultiModalProblem(Problem):
     """
-    One parameter.
+    A multi-modal problem.
 
     Notes
     -----

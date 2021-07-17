@@ -1,13 +1,20 @@
-"""Models from Prangle 2015, Adapting the ABC Distance Function."""
+"""Models from [#prangle2015]_.
+
+.. [#prangle2015]
+    Prangle, Dennis. "Adapting the ABC distance function."
+    Bayesian Analysis 12.1 (2017): 289-309.
+"""
 
 import numpy as np
 from typing import Any, Callable, Dict
 
 from pyabc import Distribution, RV
-from .base import Problem, gk
+from .base import Problem
+from .util import gk
 
 
 class PrangleNormalProblem(Problem):
+    """The normal toy problem from Prangle et al.."""
 
     def get_model(self) -> Callable:
         def model(p):
@@ -24,10 +31,11 @@ class PrangleNormalProblem(Problem):
         return prior
 
     def get_prior_bounds(self) -> dict:
-        return {"theta": (0, 100)}
+        return {"theta": (-2, 2)}
 
     def get_obs(self) -> dict:
-        return {"s1": 0, "s2": 0}
+        return self.get_model()(self.get_gt_par())
+        # return {"s1": 0, "s2": 0}
 
     def get_gt_par(self) -> dict:
         return {"theta": 0}
@@ -40,6 +48,7 @@ class PrangleNormalProblem(Problem):
 
 
 class PrangleGKProblem(Problem):
+    """The g-and-k distribution problem from Prangle et al.."""
 
     def get_model(self) -> Callable:
         def model(p):
@@ -77,6 +86,7 @@ class PrangleGKProblem(Problem):
 
 
 class PrangleLVProblem(Problem):
+    """The Lotka-Volterra MJP problem from Prangle et al.."""
 
     def get_model(self) -> Callable:
         import ssa

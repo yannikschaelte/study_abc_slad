@@ -1,3 +1,11 @@
+"""Tumor problem, based on [#jagiellaric2017]_.
+
+.. [#jagiellaric2017]
+    Jagiella, Nick, et al. "Parallelization and high-performance computing
+    enables automated statistical inference of multi-scale models."
+    Cell systems 4.2 (2017): 194-206.
+"""
+
 from typing import Callable
 import numpy as np
 
@@ -12,6 +20,8 @@ except ImportError:
 
 
 class TumorProblem(Problem):
+    """Agent-based tumor spheroid growth model with gaussian measurement noise."""
+
     def __init__(self, obs_rep: int = 1, noisy: bool = False):
         self.p_keys = [
             "growth_curve",
@@ -84,11 +94,13 @@ class TumorProblem(Problem):
             # reduce resolution
             for key in ["extra_cellular_matrix_profile", "proliferation_profile"]:
                 ret[key] = ret[key][:650:10]
-                #ret[key] = ret[key][::10]
+                # ret[key] = ret[key][::10]
             # add measurement noise
             for key in ret.keys():
                 if self.noisy:
-                    ret[key] = ret[key] + self.noise_levels[key] * np.random.randn(len(ret[key]))
+                    ret[key] = ret[key] + self.noise_levels[key] * np.random.randn(
+                        len(ret[key])
+                    )
             return ret
 
         return model

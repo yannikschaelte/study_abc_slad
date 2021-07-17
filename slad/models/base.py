@@ -1,3 +1,5 @@
+"""Base problem definition."""
+
 from typing import Any, Callable, Dict, List
 import numpy as np
 from abc import ABC, abstractmethod
@@ -6,6 +8,7 @@ from pyabc import Distribution, RV
 
 
 class Problem(ABC):
+    """Base problem class."""
 
     @abstractmethod
     def get_model(self) -> Callable:
@@ -17,23 +20,23 @@ class Problem(ABC):
 
     @abstractmethod
     def get_prior_bounds(self) -> dict:
-        """Get prior boundaries"""
+        """Get prior boundaries (for visualization)."""
 
-    @abstractmethod
     def get_obs(self) -> dict:
         """Get the observation."""
+        return self.get_model()(self.get_gt_par())
 
     @abstractmethod
     def get_gt_par(self) -> dict:
-        """Get the ground truth parameters."""
+        """Get the ground truth parameter values."""
 
     def get_sumstat(self) -> pyabc.Sumstat:
-        """Get summary statistic function."""
+        """Get the summary statistic function."""
         return pyabc.IdentitySumstat()
 
     def get_ana_args(self) -> Dict[str, Any]:
-        """Get analysis arguments"""
-        return {"population_size": 1000, "max_total_nr_simulations": 50000}
+        """Get analysis arguments."""
+        return {"population_size": 1000, "max_total_nr_simulations": 100000}
 
     @abstractmethod
     def get_id(self) -> str:
@@ -44,14 +47,8 @@ class Problem(ABC):
         return list(self.get_model()(self.get_gt_par()).keys())
 
 
-def gk(A, B, c, g, k, n: int = 1):
-    """One informative, one uninformative statistic"""
-    z = np.random.normal(size=n)
-    e = np.exp(-g * z)
-    return A + B * (1 + c * (1 - e) / (1 + e)) * (1 + z ** 2) ** k * z
-
-
 class CoreProblem(Problem):
+    """Core problem illustrating various challenging problem features."""
 
     def __init__(
         self,
