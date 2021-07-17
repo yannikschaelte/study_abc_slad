@@ -27,7 +27,8 @@ class PrangleNormalProblem(Problem):
         return {"theta": (0, 100)}
 
     def get_obs(self) -> dict:
-        return {"s1": 0, "s2": 0}
+        return self.get_model()(self.get_gt_par())
+        # return {"s1": 0, "s2": 0}
 
     def get_gt_par(self) -> dict:
         return {"theta": 0}

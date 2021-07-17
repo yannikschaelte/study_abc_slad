@@ -117,12 +117,13 @@ class FearnheadLVProblem(Problem):
         return {"p1": (0, 2), "p2": (0, 0.1), "p3": (0, 1)}
 
     def get_obs(self) -> dict:
-        model = self.get_model()
-        datas = [model(self.get_gt_par()) for _ in range(self.obs_rep)]
-        data = {}
-        for key in datas[0].keys():
-            data[key] = np.mean(np.array([d[key] for d in datas]), axis=0)
-        return data
+        return self.get_model()(self.get_gt_par())
+        #model = self.get_model()
+        #datas = [model(self.get_gt_par()) for _ in range(self.obs_rep)]
+        #data = {}
+        #for key in datas[0].keys():
+        #    data[key] = np.mean(np.array([d[key] for d in datas]), axis=0)
+        #return data
 
     def get_gt_par(self) -> dict:
         return {"p1": 0.5, "p2": 0.0025, "p3": 0.3}
