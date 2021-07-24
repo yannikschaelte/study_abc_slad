@@ -1,18 +1,33 @@
 import os
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import scipy.stats as stats
 import pickle
+import argparse
 
 import slad
 import pyabc
 
 pyabc.settings.set_figure_params("pyabc")
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--hist", type=int)
+args = parser.parse_args()
+use_hist = args.hist
+assert use_hist in [0, 1]
+print("hist", use_hist)
+if use_hist == 1:
+    data_dir = "data_hist"
+    hist_suf = "_hist"
+else:
+    data_dir = "data_robust"
+    hist_suf = ""
 
 n_rep = 20
 
-fontsize = 10
+fontsize_big = 12
+fontsize_medium = 10
 fontsize_small = 8
 padding = 0.3
 
@@ -63,7 +78,7 @@ def create_vals(problem_type):
         for i_dist, distance_name in enumerate(slad.C.distance_names):
             for i_rep in range(n_rep):
                 h = pyabc.History(
-                    f"sqlite:///data_robust/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
+                    f"sqlite:///{data_dir}/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
                     create=False)
 
                 df, w = h.get_distribution(t=h.max_t)
@@ -82,13 +97,15 @@ def create_vals(problem_type):
     return means, stds, gt_par
 
 
-def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
+def plot_rmse(
+    problem_type,
+    log: bool,
+    axes,
+    ylabels: bool,
+):
     print(problem_type)
     means, stds, gt_par = create_vals(problem_type)
     n_par = len(gt_par)
-    axes = fig.subplots(nrows=1, ncols=n_par)
-    if n_par == 1:
-        axes = [axes]
 
     n_dist = len(slad.C.distance_names)
     colors = list(slad.C.distance_colors.values())
@@ -99,23 +116,24 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
             ax.set_yticks(np.arange(n_dist))
             ax.set_yticklabels([
                 slad.C.distance_labels_short[dname] for dname in slad.C.distance_names],
-                fontdict={"fontsize": fontsize_small})
-            ax.xaxis.set_ticks_position("none")
+                fontdict={"fontsize": fontsize_medium},
+            )
+            ax.yaxis.set_ticks_position("none")
         else:
             ax.set_yticks([])
 
         ax.invert_yaxis()
         ax.barh(
             ys - 0.2, means[:, 0, i_par],
-            #xerr=stds[:, 0, i_par],
+            xerr=stds[:, 0, i_par],
             color=colors, alpha=0.3, height=0.4,
-            error_kw={"ecolor": "grey"},
+            error_kw={"ecolor": "grey", "alpha": 0.5},
         )
         ax.barh(
             ys + 0.2, means[:, 1, i_par],
-            #xerr=stds[:, 0, i_par],
+            xerr=stds[:, 1, i_par],
             color=colors, alpha=0.8, height=0.4,
-            error_kw={"ecolor": "grey"},
+            error_kw={"ecolor": "grey", "alpha": 0.5},
         )
         if log:
             ax.set_xscale("log")
@@ -131,62 +149,56 @@ def plot_rmse(problem_type, log: bool, fig, ylabels: bool, width: float):
                 ax.text(max_val * 0.9,
                         i_dist - (-1)**i * 0.2,
                         f"{means[i_dist, i, i_par]:.3f}",
-                        fontdict={"fontsize": fontsize_small},
-                        verticalalignment="center",#"bottom" if i == 0 else "top",
+                        fontdict={"fontsize": fontsize_medium},
+                        verticalalignment="center",
                         horizontalalignment="right")
 
         #ax.set_xlabel("RMSE")
-        ax.set_title(slad.C.parameter_labels[problem_type][key], fontsize=fontsize)
-        ax.axhline(y=3.5, color="grey", linestyle="--")
+        ax.set_title(slad.C.parameter_labels[problem_type][key], fontsize=fontsize_medium)
+        ax.axhline(y=3.5, color="grey", linestyle="dotted")
 
         plt.setp(ax.get_xticklabels(), fontsize=fontsize_small)
         plt.setp(ax.get_xminorticklabels(), visible=False)
 
-    # fig.suptitle(problem_labels[problem_type])
-    #fig.tight_layout()
-    fig.suptitle(slad.C.problem_labels[problem_type], x=0.5)
-    fig.subplots_adjust(left=padding / width, right=1 - padding / width)
-    #plt.savefig(f"plot_robust/rmse_{problem_type}.png")
+    axes[0].text(
+        0, 1.08, slad.C.problem_labels[problem_type],
+        horizontalalignment="left", verticalalignment="bottom",
+        transform=axes[0].transAxes, fontsize=fontsize_big,
+    )
 
-fig = plt.figure(figsize=(14, 4))
-width_ratios = [2.2, 2.2, 2.2, 4, 8, 5.5]
-subfigs = fig.subfigures(nrows=1, ncols=6, wspace=0.01, width_ratios=width_ratios)
+problem_types = ["uninf", "gaussian", "cr-zero", "gk", "lv"]
+arr_cols = [1, 1, 2, 4, 3]
+fig, axes = plt.subplots(
+    nrows=1, ncols=sum(arr_cols), figsize=(12, 5),
+    # constrained_layout=True,
+)
 
-for i, problem_type in enumerate(["uninf", "gaussian", "cr-zero", "gk", "lv"]):
-    plot_rmse(problem_type, log=True, fig=subfigs[i+1], ylabels=False,
-              width = width_ratios[i+1])
+for i, (problem_type, cols) in enumerate(zip(problem_types, arr_cols)):
+    axes_for_problem = axes[sum(arr_cols[:i]):sum(arr_cols[:i+1])]
+    plot_rmse(
+        problem_type=problem_type,
+        log=True,
+        axes=axes_for_problem,
+        ylabels=i==0,
+    )
 
-#subfigs[0].subplots_adjust(left=padding / 4 / width_ratios[0], right=1 - 0.4 / width_ratios[0])
-subfigs[-1].subplots_adjust(left=padding / width_ratios[-1],
-                            right=1 - padding / 4 / width_ratios[-1])
+# fig.tight_layout()
+plt.subplots_adjust(left=0.12, right=0.99, top=0.89, bottom=0.13)
 
-ax = subfigs[0].subplots()
-for i_dist, distance_name in enumerate(reversed(slad.C.distance_names)):
-    ax.text(0, 0.07+0.94*(i_dist / len(slad.C.distance_names)),
-            slad.C.distance_labels_short[distance_name],
-            transform=ax.transAxes,
-            fontsize=fontsize)
-ax.set_axis_off()
-subfigs[0].subplots_adjust(left=padding / 4 / width_ratios[0], right=1 - padding / 4 / width_ratios[0])
+# x axis label
+fig.text(
+    0.5, 0.05, "RMSE",
+    horizontalalignment="center", verticalalignment="center",
+    fontsize=fontsize_medium,
+)
 
-
-#fig, axes = plt.subplots(
-#    nrows=1, ncols=13, figsize=(14, 4),
-#    gridspec_kw={"width_ratios": [6, 0.05, 5, 5, 0.05, 5, 5, 5, 5, 0.05, 5, 5, 5]})
-
-#axes = axes.flatten()
-
-#plot_rmse("gaussian", True, [axes[0]], ylabels=True)
-#plot_rmse("cr-zero", True, axes[[2, 3]])
-#plot_rmse("gk", True, axes[[5, 6, 7, 8]])
-#plot_rmse("lv", True, axes[[10, 11, 12]])
-
-#for ix in [1, 4, 9]:
-#    axes[ix].axis("off")
-
-#fig.tight_layout()
-
-# fig.suptitle("RMSE")
+# legend
+legend_elements = [
+    Patch(facecolor="grey", alpha=0.3, label="Outlier-free"),
+    Patch(facecolor="grey", alpha=0.8, label="Outlier-corrupted"),
+]
+axes[-1].legend(handles=legend_elements, loc="upper right", bbox_to_anchor=(1, -0.07), ncol=2)
+#plt.subplots_adjust(bottom=0.1)
 
 for fmt in ["pdf", "png"]:
-    plt.savefig(f"figures_robust/figure_rmse.{fmt}", format=fmt, dpi=200)
+    plt.savefig(f"figures_robust/figure_rmse{hist_suf}.{fmt}", format=fmt, dpi=200)

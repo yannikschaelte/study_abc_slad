@@ -39,12 +39,14 @@ for deviation in [0, 1, 5, 25, 125]:
                 label=f"Deviation {deviation} x std",
             )
             axes[i_problem, i_distance].set_title(
-                f"{slad.C.problem_labels[problem_type]} - {slad.C.distance_labels_short[distance_name]}")
+                f"Model {slad.C.problem_labels[problem_type]} - {slad.C.distance_labels_short[distance_name]}")
             if i_distance > 0:
                 axes[i_problem, i_distance].set_ylabel(None)
 
 
 # axes[0, 2].legend()
+for ax in [axes[0, 0,], axes[1, 0]]:
+    ax.set_ylabel("ABC posterior")
 axes[0, 2].legend(bbox_to_anchor=(0.9, 0.5), loc="center")
 fig.tight_layout(h_pad=3)
 

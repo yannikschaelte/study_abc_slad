@@ -1,8 +1,22 @@
 import os
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import argparse
 
 import slad
 import pyabc
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--frac_error", type=float)
+parser.add_argument("--hist", type=int)
+args = parser.parse_args()
+use_hist = args.hist
+if use_hist == 1:
+    db_dir_base = "data_hist"
+    hist_suf = "_hist"
+elif use_hist == 0:
+    db_dir_base = "data_robust"
+    hist_suf = ""
 
 pyabc.settings.set_figure_params("pyabc")
 
@@ -31,14 +45,18 @@ if reduced:
     ]
 
 fig = plt.figure(
-    figsize=(14, 5),
-    constrained_layout=True,
+    figsize=(12, 5),
+    #constrained_layout=True,
 )
-arr_ax = fig.subplots(nrows=2, ncols=len(pars), gridspec_kw={"hspace": 0.15})
+arr_ax = fig.subplots(
+    nrows=2,
+    ncols=len(pars),
+    #gridspec_kw={"hspace": 0.15},
+)
 
 for distance_name in distance_names:
     h = pyabc.History(
-        f"sqlite:///data_robust/{problem.get_id()}_0_p200/db_{distance_name}.db",
+        f"sqlite:///{db_dir_base}/{problem.get_id()}_0/db_{distance_name}.db",
         create=False)
     df, w = h.get_distribution()
     for i_par, par in enumerate(pars):
@@ -52,7 +70,7 @@ for distance_name in distance_names:
         )
 
     h = pyabc.History(
-        f"sqlite:///data_robust/{problem_error.get_id()}_0_p200/db_{distance_name}.db",
+        f"sqlite:///{db_dir_base}/{problem_error.get_id()}_0/db_{distance_name}.db",
         create=False)
     df, w = h.get_distribution()
     for i_par, par in enumerate(pars):
@@ -67,16 +85,37 @@ for distance_name in distance_names:
 
 for ax in arr_ax[:, 1:].flatten():
     ax.set_ylabel(None)
-for ax in arr_ax[0, :]:
+arr_ax[0, 0].set_ylabel("ABC posterior")
+arr_ax[1, 0].set_ylabel("ABC posterior")
+for ax in arr_ax.flatten():
     ax.set_xlabel(None)
-arr_ax[0, -1].legend()
+for ax, par in zip(arr_ax[0, :], pars):
+    ax.set_title(slad.C.parameter_labels["tumor"][par], fontsize=10)
 
-for i_err, label in enumerate(["No outliers", "20% of data points interchanged"]):
-    arr_ax[i_err, 2].text(
-        0.5, 1.1, label, transform=arr_ax[i_err, 2].transAxes,
-        horizontalalignment="center", verticalalignment="center", fontsize=12)
+fig.tight_layout(rect=(0.01, 0.05, 0.99, 0.95), h_pad=2) # left, bottom, right, top
 
-# fig.tight_layout()
+fig.text(
+   0.5, 0.97, "M6, Outlier-free data",
+   horizontalalignment="center", verticalalignment="top", fontsize=12)
+fig.text(
+   0.5, 0.49, "M6, Outlier-corrupted data",
+   horizontalalignment="center", verticalalignment="top", fontsize=12)
+
+# legend
+legend_elements = [
+    mpl.lines.Line2D(
+        [0], [0],
+        color=slad.C.distance_colors[dname],
+        label=slad.C.distance_labels_short[dname],
+    )
+    for dname in distance_names
+]
+arr_ax.flatten()[-1].legend(
+    handles=legend_elements,
+    loc="upper right",
+    bbox_to_anchor=(1, -0.16),
+    ncol=len(legend_elements),
+)
 
 for fmt in ["pdf", "png"]:
-    plt.savefig(f"figures_robust/figure_tumor_kdes.{fmt}", format=fmt, dpi=200)
+    plt.savefig(f"figures_robust/figure_tumor_kdes{hist_suf}.{fmt}", format=fmt, dpi=200)
