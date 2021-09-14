@@ -19,19 +19,19 @@ class DemoProblem(Problem):
 
     def get_model(self) -> Callable:
         def model(p):
-            return {
-                "s1": p["p1"] + 1e-1 * np.random.normal(),
-                "s2": p["p2"] + 1e2 * np.random.normal(),
-                "s3": p["p3"] ** 2 + 1e-2 * np.random.normal(),
-                "s4": 1e1 * np.random.normal(size=5),
-            }
+            vals = np.full(1+3+1+10, fill_value=np.nan)
+            vals[0] = p["p1"] + 1e-1 * np.random.normal()
+            vals[1:4] = p["p2"] + 1e2 * np.random.normal(size=3)
+            vals[4] = p["p3"] ** 2 + 5e-2 * np.random.normal()
+            vals[5:] = 1e1 * np.random.normal(size=10)
+            return {"s": vals}
 
         return model
 
     def get_prior_bounds(self) -> dict:
         return {
-            "p1": (-1e1, 1e1),
-            "p2": (-1e3, 1e3),
+            "p1": (-7e0, 7e0),
+            "p2": (-7e2, 7e2),
             "p3": (-1e0, 1e0),
         }
 
@@ -47,13 +47,8 @@ class DemoProblem(Problem):
         return {"p1": 0, "p2": 0, "p3": 0.7}
 
     def get_obs(self) -> dict:
+        return {"s": np.array([0, *[0] * 3, 0.7**2, *[0] * 10])}
         # return self.get_model()(self.get_gt_par())
-        return {
-            "s1": 0,
-            "s2": 0,
-            "s3": 0.7 ** 2,
-            "s4": 0 * np.ones(shape=5),
-        }
 
     def get_id(self) -> str:
         return "demo"
