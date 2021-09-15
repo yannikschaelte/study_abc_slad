@@ -19,11 +19,12 @@ class DemoProblem(Problem):
 
     def get_model(self) -> Callable:
         def model(p):
-            vals = np.full(1+3+1+10, fill_value=np.nan)
+            vals = np.full(1+1+4+1+10, fill_value=np.nan)
             vals[0] = p["p1"] + 1e-1 * np.random.normal()
-            vals[1:4] = p["p2"] + 1e2 * np.random.normal(size=3)
-            vals[4] = p["p3"] ** 2 + 5e-2 * np.random.normal()
-            vals[5:] = 1e1 * np.random.normal(size=10)
+            vals[1] = p["p2"] + 1e2 * np.random.normal()
+            vals[2:6] = p["p3"] + np.sqrt(4 * 1e2**2) * np.random.normal(size=4)
+            vals[6] = p["p4"] ** 2 + 1e-1 * np.random.normal()
+            vals[7:] = 1e1 * np.random.normal(size=10)
             return {"s": vals}
 
         return model
@@ -32,7 +33,8 @@ class DemoProblem(Problem):
         return {
             "p1": (-7e0, 7e0),
             "p2": (-7e2, 7e2),
-            "p3": (-1e0, 1e0),
+            "p3": (-7e2, 7e2),
+            "p4": (-1e0, 1e0),
         }
 
     def get_prior(self) -> Distribution:
@@ -44,10 +46,10 @@ class DemoProblem(Problem):
         )
 
     def get_gt_par(self) -> dict:
-        return {"p1": 0, "p2": 0, "p3": 0.7}
+        return {"p1": 0, "p2": 0, "p3": 0, "p4": 0.7}
 
     def get_obs(self) -> dict:
-        return {"s": np.array([0, *[0] * 3, 0.7**2, *[0] * 10])}
+        return {"s": np.array([0, 0, *[0] * 4, 0.7**2, *[0] * 10])}
         # return self.get_model()(self.get_gt_par())
 
     def get_id(self) -> str:
