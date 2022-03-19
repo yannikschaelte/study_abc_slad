@@ -4,6 +4,7 @@ All problems are derived from a common `Problem` class.
 """
 
 from .base import *
+from .demo import *
 from .prangle2015 import *
 from .fearnhead2012 import *
 from .tumor import *

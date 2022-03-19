@@ -32,6 +32,9 @@ class HarrisonToyProblem(Problem):
     def get_prior_bounds(self) -> dict:
         return {"theta": (0, 2)}
 
+    def get_viz_bounds(self) -> dict:
+        return {"theta": (0.5, 1.5)}
+
     def get_gt_par(self) -> dict:
         return {"theta": 1}
 
@@ -140,10 +143,10 @@ class HarrisonDimerProblem(Problem):
             ]
         )
 
-        x0 = np.array([1e4, 0, 0])
+        x0 = np.array([1e5, 0, 0])
 
         t_max = 100
-        n_t = 33
+        n_t = 8
         ts = np.geomspace(1, t_max, num=n_t)
         output = ssa.output.ArrayOutput(ts=ts)
 

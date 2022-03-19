@@ -1,13 +1,9 @@
-"""Run demonstration example.
+"""Main study execution script.
 
-* Unweighted
-* (Calibrated)
-* Adaptive
-* Linear
-* Adaptive linear
-* Adaptive linear subset
-* Info linear
-* Info linear subset
+Compare:
+* Unweighted vs adaptive
+* 
+
 """
 
 import os
@@ -25,6 +21,7 @@ import slad
 from slad.util import *
 from slad.ana_util import *
 
+
 # for debugging
 for logger in ["ABC.Distance", "ABC.Predictor", "ABC.Sumstat"]:
     logging.getLogger(logger).setLevel(logging.DEBUG)
@@ -33,17 +30,17 @@ for logger in ["ABC.Distance", "ABC.Predictor", "ABC.Sumstat"]:
 host, port = slad.read_args()
 
 # constants
-pilot_frac = 0.4
-n_rep = 1
-data_dir_base = "data_learn_demo"
-
+sim_frac = 0.4
 
 def get_distance(
     name: str,
     pre,
     total_sims: int,
 ) -> pyabc.Distance:
-    sims = {pilot_frac * total_sims}
+    #if name == "PNorm":
+    #    return PNormDistance(p=1)
+
+    par_trafos = [lambda x: x, lambda x: x**2]
 
     mlp_unn = MLPPredictor(
         normalize_features=False,
@@ -61,22 +58,30 @@ def get_distance(
         early_stopping=True,
     )
 
-    if name == "PNorm":
-        return PNormDistance(p=1)
-
     if name == "Adaptive":
         return AdaptivePNormDistance(p=1, scale_function=mad)
+
+    # Linear
+
+    if name == "Linear__Initial":
+        return PNormDistance(
+            p=1,
+            sumstat=PredictorSumstat(
+                predictor=LinearPredictor(normalize_features=False, normalize_labels=False),
+                fit_ixs={0},
+                pre=pre,
+                all_particles=True,
+            ),
+        )
 
     if name == "Linear":
         return PNormDistance(
             p=1,
             sumstat=PredictorSumstat(
-                predictor=LinearPredictor(
-                    normalize_features=False, normalize_labels=False,
-                ),
-                fit_ixs=EventIxs(sims=sims),
+                LinearPredictor(normalize_features=False, normalize_labels=False),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -85,10 +90,10 @@ def get_distance(
             p=1,
             scale_function=mad,
             sumstat=PredictorSumstat(
-                predictor=LinearPredictor(),
-                fit_ixs=EventIxs(sims=sims),
+                LinearPredictor(),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -97,11 +102,24 @@ def get_distance(
             p=1,
             scale_function=mad,
             sumstat=PredictorSumstat(
-                predictor=LinearPredictor(),
-                fit_ixs=EventIxs(sims=sims),
+                LinearPredictor(),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
-                par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                par_trafo=ParTrafo(trafos=par_trafos),
+                all_particles=True,
+            ),
+        )
+
+    # MLP
+
+    if name == "MLP2__Initial":
+        return PNormDistance(
+            p=1,
+            sumstat=PredictorSumstat(
+                predictor=mlp_unn,
+                fit_ixs={0},
+                pre=pre,
+                all_particles=True,
             ),
         )
 
@@ -110,9 +128,9 @@ def get_distance(
             p=1,
             sumstat=PredictorSumstat(
                 predictor=mlp_unn,
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -122,9 +140,9 @@ def get_distance(
             scale_function=mad,
             sumstat=PredictorSumstat(
                 predictor=mlp,
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -134,10 +152,28 @@ def get_distance(
             scale_function=mad,
             sumstat=PredictorSumstat(
                 predictor=mlp,
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
-                par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                par_trafo=ParTrafo(trafos=par_trafos),
+                all_particles=True,
+            ),
+        )
+
+    # MS
+
+    if name == "MS2__Initial":
+        return PNormDistance(
+            p=1,
+            sumstat=PredictorSumstat(
+                predictor=ModelSelectionPredictor(
+                    predictors=[
+                        LinearPredictor(normalize_features=False, normalize_labels=False),
+                        mlp_unn,
+                    ],
+                ),
+                fit_ixs={0},
+                pre=pre,
+                all_particles=True,
             ),
         )
 
@@ -151,9 +187,9 @@ def get_distance(
                         mlp_unn,
                     ],
                 ),
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -168,9 +204,9 @@ def get_distance(
                         mlp,
                     ],
                 ),
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -185,11 +221,22 @@ def get_distance(
                         mlp,
                     ],
                 ),
-                fit_ixs=EventIxs(sims=sims),
+                fit_ixs=EventIxs(sims=[sim_frac * total_sims]),
                 pre=pre,
-                pre_before_fit=False,
-                par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                par_trafo=ParTrafo(trafos=par_trafos),
             ),
+        )
+
+    # Info Linear
+
+    if name == "Info__Linear__Initial":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad,
+            predictor=LinearPredictor(),
+            fit_info_ixs={0},
+            feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__Linear":
@@ -197,8 +244,9 @@ def get_distance(
             p=1,
             scale_function=mad,
             predictor=LinearPredictor(),
-            fit_info_ixs=EventIxs(sims=sims),
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
             feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__Linear__Extend":
@@ -206,9 +254,60 @@ def get_distance(
             p=1,
             scale_function=mad,
             predictor=LinearPredictor(),
-            fit_info_ixs=EventIxs(sims=sims),
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
+            par_trafo=ParTrafo(trafos=par_trafos),
             feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            all_particles_for_prediction=True,
+        )
+
+    # Info MLP
+
+    if name == "Info__MLP2__Initial":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad,
+            predictor=mlp,
+            fit_info_ixs={0},
+            feature_normalization="weights",
+            all_particles_for_prediction=True,
+        )
+
+    if name == "Info__MLP2":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad,
+            predictor=mlp,
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
+            feature_normalization="weights",
+            all_particles_for_prediction=True,
+        )
+
+    if name == "Info__MLP2__Extend":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad,
+            predictor=mlp,
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
+            par_trafo=ParTrafo(trafos=par_trafos),
+            feature_normalization="weights",
+            all_particles_for_prediction=True,
+        )
+    
+    # Info MS
+
+    if name == "Info__MS2__Initial":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad,
+            predictor=ModelSelectionPredictor(
+                predictors=[
+                    LinearPredictor(),
+                    mlp,
+                ],
+            ),
+            fit_info_ixs={0},
+            feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MS2":
@@ -221,8 +320,9 @@ def get_distance(
                     mlp,
                 ],
             ),
-            fit_info_ixs=EventIxs(sims=sims),
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
             feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MS2__Extend":
@@ -235,143 +335,65 @@ def get_distance(
                     mlp,
                 ],
             ),
-            fit_info_ixs=EventIxs(sims=sims),
+            fit_info_ixs=EventIxs(sims=[sim_frac * total_sims]),
+            par_trafo=ParTrafo(trafos=par_trafos),
             feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
-        )
-
-    if name == "Info__MLP2":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=mlp,
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-        )
-
-    if name == "Info__MLP2__Extend":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=mlp,
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
-        )
-    
-    # info without parameter normalization
-
-    if name == "Info2__Linear":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=LinearPredictor(),
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            normalize_by_par=False,
-        )
-
-    if name == "Info2__Linear__Extend":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=LinearPredictor(),
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
-            normalize_by_par=False,
-        )
-
-    if name == "Info2__MS2":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=ModelSelectionPredictor(
-                predictors=[
-                    LinearPredictor(),
-                    mlp,
-                ],
-            ),
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            normalize_by_par=False,
-        )
-
-    if name == "Info2__MS2__Extend":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=ModelSelectionPredictor(
-                predictors=[
-                    LinearPredictor(),
-                    mlp,
-                ],
-            ),
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
-            normalize_by_par=False,
-        )
-
-    if name == "Info2__MLP2":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=mlp,
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            normalize_by_par=False,
-        )
-
-    if name == "Info2__MLP2__Extend":
-        return InfoWeightedPNormDistance(
-            p=1,
-            scale_function=mad,
-            predictor=mlp,
-            fit_info_ixs=EventIxs(sims=sims),
-            feature_normalization="weights",
-            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
-            normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     raise ValueError(f"Distance {name} not recognized.")
 
 
 distance_names = [
-    "PNorm",
     "Adaptive",
+    # Linear
+    "Linear__Initial",
     "Linear",
     "Adaptive__Linear",
     "Adaptive__Linear__Extend",
+    # MLP
+    "MLP2__Initial",
     "MLP2",
     "Adaptive__MLP2",
     "Adaptive__MLP2__Extend",
-    "MS2",
-    "Adaptive__MS2",
-    "Adaptive__MS2__Extend",
+    # MS
+    #"MS2__Initial",
+    #"MS2",
+    #"Adaptive__MS2",
+    #"Adaptive__MS2__Extend",
+    # Info Linear
+    "Info__Linear__Initial",
     "Info__Linear",
     "Info__Linear__Extend",
+    # Info MLP
+    "Info__MLP2__Initial",
     "Info__MLP2",
     "Info__MLP2__Extend",
-    "Info__MS2",
-    "Info__MS2__Extend",
-    "Info2__Linear",
-    "Info2__Linear__Extend",
-    "Info2__MLP2",
-    "Info2__MLP2__Extend",
-    "Info2__MS2",
-    "Info2__MS2__Extend",
+    # Info MS
+    #"Info__MS2__Initial",
+    #"Info__MS2",
+    #"Info__MS2__Extend",
 ]
-
 
 # test
-for dname in distance_names:
-    get_distance(dname, pre=IdentitySumstat(), total_sims=1000)
+for distance_name in distance_names:
+    get_distance(distance_name, pre=pyabc.IdentitySumstat(), total_sims=10000)
 
-# problem types
+
+n_rep = 10
+data_dir_base = "data_learn_useall"
+
 problem_types = [
-    "demo",
+    #"demo",
+    "cr",
+    "prangle_normal",
+    "prangle_gk",
+    "prangle_lv",
+    "fearnhead_gk",
+    "fearnhead_lv",
+    "harrison_toy",
 ]
+
 
 # create data
 for problem_type in problem_types:
@@ -381,12 +403,13 @@ for problem_type in problem_types:
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
             data = problem.get_obs()
-            data = {"s": np.array([0, 0, *[0] * 4, 0.7**2, *[0] * 10])}
             save_data(data, data_dir)
 
 
 # main loop
 for problem_type in problem_types:
+    print(problem_type)
+
     for i_rep in range(n_rep):
         problem = type_to_problem(problem_type)
         pop_size, max_total_sim = n_sim_for_problem(problem_type)
@@ -408,7 +431,8 @@ for problem_type in problem_types:
             # define distance
             distance = get_distance(
                 dname,
-                pre=problem.get_sumstat(),
+                #re=problem.get_sumstat(),
+                pre=None,
                 total_sims=max_total_sim,
             )
             if isinstance(distance, AdaptivePNormDistance):
@@ -418,9 +442,6 @@ for problem_type in problem_types:
             if isinstance(distance, InfoWeightedPNormDistance):
                 distance.info_log_file = os.path.join(
                     data_dir, f"log_info_{dname}.json"
-                )
-                distance.info_sample_log_file = os.path.join(
-                    data_dir, f"log_info_sample_{dname}"
                 )
 
             sampler = RedisEvalParallelSampler(host=host, port=port, batch_size=10)

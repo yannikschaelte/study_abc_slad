@@ -20,7 +20,11 @@ class Problem(ABC):
 
     @abstractmethod
     def get_prior_bounds(self) -> dict:
-        """Get prior boundaries (for visualization)."""
+        """Get prior boundaries."""
+
+    def get_viz_bounds(self) -> dict:
+        """Get boundaries for visualization."""
+        return self.get_prior_bounds()
 
     def get_obs(self) -> dict:
         """Get the observation."""

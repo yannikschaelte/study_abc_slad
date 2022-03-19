@@ -53,6 +53,9 @@ class FearnheadGKProblem(Problem):
         # return {"A": (2.8, 3.2), "B": (0.8, 1.2), "g": (0, 4), "k": (0, 2)}
         return {key: (0, 10) for key in ["A", "B", "g", "k"]}
 
+    def get_viz_bounds(self) -> dict:
+        return {"A": (2.5, 3.5), "B": (0.5, 1.5), "g": (1, 2), "k": (0, 1)}
+
     def get_obs(self) -> dict:
         return self.get_model()(self.get_gt_par())
 
@@ -128,6 +131,9 @@ class FearnheadLVProblem(Problem):
     def get_prior_bounds(self) -> dict:
         return {"p1": (0, 2), "p2": (0, 0.1), "p3": (0, 1)}
 
+    def get_viz_bounds(self) -> dict:
+        return {"p1": (0, 1.5), "p2": (0, 0.02), "p3": (0, 1)}
+
     def get_obs(self) -> dict:
         return self.get_model()(self.get_gt_par())
         #model = self.get_model()
@@ -144,4 +150,5 @@ class FearnheadLVProblem(Problem):
         return {"population_size": 1000, "max_total_nr_simulations": 50000}
 
     def get_id(self) -> str:
-        return "fearnhead_lv"
+        # return "fearnhead_lv"
+        return "fearnhead_lv_500"

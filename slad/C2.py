@@ -25,19 +25,23 @@ distance_labels_short = {dname: dname for dname in distance_names}
 distance_colors = {dname: f"C{i}" for i, dname in enumerate(distance_names)}
 
 problem_labels = {
+    "demo": "Demo",
     "prangle_normal": "Prangle-Normal",
     "prangle_gk": "Prangle-GK",
     "prangle_lv": "Prangle-LV",
     "fearnhead_gk": "Fearnhead-GK",
     "fearnhead_lv": "Fearnhead-LV",
+    "harrison_toy": "Harrison-Toy",
     "uninf": "Uninformative",
     "gaussian": "Replicates",
     "gk": "GK",
     "lv": "Lotka-Volterra",
+    "cr": "CR",
     "cr-zero": "Conversion",
 }
 
 parameter_labels = {
+    "demo": {"p1": r"$\theta_1$", "p2": r"$\theta_2$", "p3": r"$\theta_3$"},
     "prangle_normal": {"theta": r"$\theta$"},
     "prangle_gk": {"A": "A", "B": "B", "g": "g", "k": "k"},
     "prangle_lv": {
@@ -51,6 +55,7 @@ parameter_labels = {
         "p2": r"$\log~\theta_2$",
         "p3": r"$\log~\theta_3$",
     },
+    "harrison_toy": {"theta": r"$\theta$"},
     "uninf": {"p0": r"$\theta$"},
     "gaussian": {"p0": r"$\theta$"},
     "gk": {"A": "A", "B": "B", "g": "g", "k": "k"},
@@ -59,6 +64,7 @@ parameter_labels = {
         "p2": r"$\log~\theta_2$",
         "p3": r"$\log~\theta_3$",
     },
+    "cr": {"p0": r"$\log~\theta_1$", "p1": r"$\log~\theta_2$"},
     "cr-zero": {"p0": r"$\log~\theta_1$", "p1": r"$\log~\theta_2$"},
     "tumor": {
         "log_division_rate": "log(div. rate)",

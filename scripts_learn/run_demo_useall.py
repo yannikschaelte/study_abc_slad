@@ -35,7 +35,7 @@ host, port = slad.read_args()
 # constants
 pilot_frac = 0.4
 n_rep = 1
-data_dir_base = "data_learn_demo"
+data_dir_base = "data_learn_demo_useall"
 
 
 def get_distance(
@@ -77,6 +77,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -89,6 +90,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -102,6 +104,7 @@ def get_distance(
                 pre=pre,
                 pre_before_fit=False,
                 par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                all_particles=True,
             ),
         )
 
@@ -113,6 +116,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -125,6 +129,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -138,6 +143,7 @@ def get_distance(
                 pre=pre,
                 pre_before_fit=False,
                 par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                all_particles=True,
             ),
         )
 
@@ -154,6 +160,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -171,6 +178,7 @@ def get_distance(
                 fit_ixs=EventIxs(sims=sims),
                 pre=pre,
                 pre_before_fit=False,
+                all_particles=True,
             ),
         )
 
@@ -189,6 +197,7 @@ def get_distance(
                 pre=pre,
                 pre_before_fit=False,
                 par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                all_particles=True,
             ),
         )
 
@@ -199,6 +208,7 @@ def get_distance(
             predictor=LinearPredictor(),
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__Linear__Extend":
@@ -209,6 +219,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MS2":
@@ -223,6 +234,7 @@ def get_distance(
             ),
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MS2__Extend":
@@ -238,6 +250,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MLP2":
@@ -247,6 +260,7 @@ def get_distance(
             predictor=mlp,
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
+            all_particles_for_prediction=True,
         )
 
     if name == "Info__MLP2__Extend":
@@ -257,6 +271,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            all_particles_for_prediction=True,
         )
     
     # info without parameter normalization
@@ -269,6 +284,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     if name == "Info2__Linear__Extend":
@@ -280,6 +296,7 @@ def get_distance(
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     if name == "Info2__MS2":
@@ -295,6 +312,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     if name == "Info2__MS2__Extend":
@@ -311,6 +329,7 @@ def get_distance(
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     if name == "Info2__MLP2":
@@ -321,6 +340,7 @@ def get_distance(
             fit_info_ixs=EventIxs(sims=sims),
             feature_normalization="weights",
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     if name == "Info2__MLP2__Extend":
@@ -332,6 +352,7 @@ def get_distance(
             feature_normalization="weights",
             par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
             normalize_by_par=False,
+            all_particles_for_prediction=True,
         )
 
     raise ValueError(f"Distance {name} not recognized.")
@@ -346,21 +367,21 @@ distance_names = [
     "MLP2",
     "Adaptive__MLP2",
     "Adaptive__MLP2__Extend",
-    "MS2",
-    "Adaptive__MS2",
-    "Adaptive__MS2__Extend",
+    #"MS2",
+    #"Adaptive__MS2",
+    #"Adaptive__MS2__Extend",
     "Info__Linear",
     "Info__Linear__Extend",
     "Info__MLP2",
     "Info__MLP2__Extend",
-    "Info__MS2",
-    "Info__MS2__Extend",
+    #"Info__MS2",
+    #"Info__MS2__Extend",
     "Info2__Linear",
     "Info2__Linear__Extend",
     "Info2__MLP2",
     "Info2__MLP2__Extend",
-    "Info2__MS2",
-    "Info2__MS2__Extend",
+    #"Info2__MS2",
+    #"Info2__MS2__Extend",
 ]
 
 

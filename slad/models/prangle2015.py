@@ -72,6 +72,9 @@ class PrangleGKProblem(Problem):
     def get_prior_bounds(self) -> dict:
         return {key: (0, 10) for key in ["A", "B", "g", "k"]}
 
+    def get_viz_bounds(self) -> dict:
+        return {"A": (2.5, 3.5), "B": (0.5, 1.5), "g": (1, 2), "k": (0, 1)}
+
     def get_obs(self) -> dict:
         return self.get_model()(self.get_gt_par())
 
@@ -138,6 +141,9 @@ class PrangleLVProblem(Problem):
     def get_prior_bounds(self) -> dict:
         return {key: (-6, 2) for key in ["p1", "p2", "p3"]}
 
+    def get_viz_bounds(self) -> dict:
+        return {"p1": (-1, 2), "p2": (-6, -3), "p3": (-2, 2)}
+
     def get_obs(self) -> dict:
         return self.get_model()(self.get_gt_par())
 
@@ -148,4 +154,5 @@ class PrangleLVProblem(Problem):
         return {"population_size": 200, "max_total_nr_simulations": 50000}
 
     def get_id(self) -> str:
-        return "prangle_lv"
+        # return "prangle_lv"
+        return "prangle_lv_500"
