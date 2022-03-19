@@ -45,7 +45,8 @@ distance_labels = {
 }
 
 problem_labels = {
-    "gaussian": "Gaussian",
+    "uninf": "Uninformative",
+    "gaussian": "Replicates",
     "gk": "GK",
     "lv": "Lotka-Volterra",
     "cr-zero": "CR-Zero",
@@ -108,15 +109,18 @@ def plot_rmse(n_par, means, stds, problem_type, log: bool):
 
 
 for problem_type in [
+    "uninf",
     "gaussian",
     "gk",
     "lv",
     "cr-zero",
-    "cr-swap",
+    #"cr-swap",
 ]:
     print(problem_type)
 
-    if problem_type == "gaussian":
+    if problem_type == "uninf":
+        problem = slad.UninfErrorProblem()
+    elif problem_type == "gaussian":
         problem = slad.GaussianErrorProblem()
     elif problem_type == "gk":
         problem = slad.PrangleGKErrorProblem()
@@ -136,7 +140,9 @@ for problem_type in [
 
     for i_mode, kwargs in enumerate([{'n_obs_error': 0}, {}]):
 
-        if problem_type == "gaussian":
+        if problem_type == "uninf":
+            problem = slad.UninfErrorProblem(**kwargs)
+        elif problem_type == "gaussian":
             problem = slad.GaussianErrorProblem(**kwargs)
         elif problem_type == "gk":
             problem = slad.PrangleGKErrorProblem(**kwargs)

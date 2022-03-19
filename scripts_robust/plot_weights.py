@@ -27,16 +27,19 @@ data_dir = "data_robust"
 n_rep = 20
 
 for problem_type in [
+    "uninf",
     "gaussian",
     "gk",
     "lv",
     "CRZero",
-    "CRSwap",
+    #"CRSwap",
 ]:
     for i_rep in range(n_rep):
         for kwargs in [{'n_obs_error': 0}, {}]:
             print(problem_type, i_rep, kwargs)
-            if problem_type == "gaussian":
+            if problem_type == "uninf":
+                problem = slad.UninfErrorProblem(**kwargs)
+            elif problem_type == "gaussian":
                 problem = slad.GaussianErrorProblem(**kwargs)
             elif problem_type == "gk":
                 problem = slad.PrangleGKErrorProblem(**kwargs)

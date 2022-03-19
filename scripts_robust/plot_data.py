@@ -21,8 +21,9 @@ for problem_class in [
     slad.PrangleLVErrorProblem,
     slad.PrangleGKErrorProblem,
     slad.CRErrorZeroProblem,
-    slad.CRErrorSwapProblem,
+    # slad.CRErrorSwapProblem,
     slad.GaussianErrorProblem,
+    slad.UninfErrorProblem,
 ]:
     for kwargs in [{"n_obs_error": 0}, {}]:
         problem = problem_class(**kwargs)

@@ -51,6 +51,8 @@ for problem_type in [
             slad.plot_cis(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
             plt.savefig(f"plot_robust/cis/{problem.get_id()}_{i_rep}_cis.png")
 
+            plt.close()
+
             slad.plot_1d_kdes(problem, distance_names, data_dir=data_dir, problem_suff=f"_{i_rep}")
             plt.savefig(f"plot_robust/kdes/{problem.get_id()}_{i_rep}_1d_kdes.png")
 

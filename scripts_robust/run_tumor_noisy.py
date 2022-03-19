@@ -8,6 +8,7 @@ from pyabc import ABCSMC, RedisEvalParallelSampler
 from pyabc.distance import *
 from pyabc.predictor import *
 from pyabc.sumstat import *
+from pyabc.util import *
 
 import slad
 
@@ -20,6 +21,14 @@ host, port = slad.read_args()
 
 
 def get_distance(name: str) -> pyabc.Distance:
+    # ms2 is without heuristic and adam instead
+    mlp = MLPPredictor(
+        hidden_layer_sizes=HiddenLayerHandle(method="mean"),
+        solver="adam",
+        max_iter=20000,
+        early_stopping=True,
+    )
+
     if name == "Euclidean":
         return PNormDistance(p=2)
     if name == "Manhattan":
@@ -45,20 +54,172 @@ def get_distance(name: str) -> pyabc.Distance:
     if name == "Adaptive__Manhattan__mad_or_cmad":
         return AdaptivePNormDistance(p=1, scale_function=mad_or_cmad)
 
-    if name == "Info__Linear__Manhattan__mad_or_cmad":
+    if name == "Adaptive__Linear__Manhattan__mad_or_cmad__useall":
+        return AdaptivePNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            sumstat=PredictorSumstat(
+                predictor=LinearPredictor(
+                    normalize_features=False, normalize_labels=False,
+                ),
+                fit_ixs=EventIxs(sims=0.4 * 150000),
+                pre_before_fit=False,
+                all_particles=True,
+                # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            ),
+        )
+
+    if name == "Adaptive__Linear__Manhattan__mad_or_cmad__Extend__useall":
+        return AdaptivePNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            sumstat=PredictorSumstat(
+                predictor=LinearPredictor(
+                    normalize_features=False, normalize_labels=False,
+                ),
+                fit_ixs=EventIxs(sims=0.4 * 150000),
+                pre_before_fit=False,
+                par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+                all_particles=True,
+            ),
+        )
+
+    if name == "Adaptive__MS2__Manhattan__mad_or_cmad":
+        return AdaptivePNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            sumstat=PredictorSumstat(
+                predictor=ModelSelectionPredictor(
+                    predictors=[
+                        LinearPredictor(),
+                        mlp,
+                    ],
+                    split_method="cross_validation",
+                ),
+                fit_ixs=EventIxs(sims=0.4 * 150000),
+                pre_before_fit=False,
+                # par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            ),
+        )
+
+    if name == "Adaptive__MS2__Manhattan__mad_or_cmad__Extend":
+        return AdaptivePNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            sumstat=PredictorSumstat(
+                predictor=ModelSelectionPredictor(
+                    predictors=[
+                        LinearPredictor(),
+                        mlp,
+                    ],
+                    split_method="cross_validation",
+                ),
+                fit_ixs=EventIxs(sims=0.4 * 150000),
+                pre_before_fit=False,
+                par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            ),
+        )
+
+    if name == "Adaptive__MLP2__Manhattan__mad_or_cmad__useall":
+        return AdaptivePNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            sumstat=PredictorSumstat(
+                predictor=mlp,
+                fit_ixs=EventIxs(sims=0.4 * 150000),
+                pre_before_fit=False,
+                #par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+                # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            ),
+        )
+
+    if name == "Info__Linear__Manhattan__mad_or_cmad__useall":
         return InfoWeightedPNormDistance(
             p=1,
             scale_function=mad_or_cmad,
-            predictor=LinearPredictor(),
-            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27},
+            predictor=LinearPredictor(
+                normalize_features=False, normalize_labels=False,
+            ),
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            all_particles_for_prediction=True,
+            # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
         )
+
     if name == "Info__Linear__Manhattan__mad_or_cmad__Subset":
         return InfoWeightedPNormDistance(
             p=1,
             scale_function=mad_or_cmad,
-            predictor=LinearPredictor(),
-            fit_info_ixs={3, 6, 9, 12, 15, 18, 21, 24, 27},
-            subsetter=GMMSubsetter(),
+            predictor=LinearPredictor(
+                normalize_features=False, normalize_labels=False,
+            ),
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+        )
+
+    if name == "Info__Linear__Manhattan__mad_or_cmad__Extend__useall":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=LinearPredictor(
+                normalize_features=False, normalize_labels=False,
+            ),
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            all_particles_for_prediction=True,
+        )
+
+    if name == "Info__MS2__Manhattan__mad_or_cmad":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=ModelSelectionPredictor(
+                predictors=[
+                    LinearPredictor(),
+                    mlp,
+                ],
+                split_method="cross_validation",
+            ),
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            # par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+        )
+
+    if name == "Info__MS2__Manhattan__mad_or_cmad__Extend__useall":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=ModelSelectionPredictor(
+                predictors=[
+                    LinearPredictor(),
+                    mlp,
+                ],
+                split_method="cross_validation",
+            ),
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            all_particles_for_prediction=True,
+        )
+
+    if name == "Info__MLP2__Manhattan__mad_or_cmad__Extend__useall":
+        return InfoWeightedPNormDistance(
+            p=1,
+            scale_function=mad_or_cmad,
+            predictor=mlp,
+            fit_info_ixs=EventIxs(sims=0.4 * 150000),
+            feature_normalization="mad",
+            par_trafo=ParTrafo(trafos=[lambda x: x, lambda x: x**2, lambda x: x**3, lambda x: x**4]),
+            # subsetter=GMMSubsetter(gmm_args={"max_iter": 1000, "n_init": 10}),
+            all_particles_for_prediction=True,
         )
 
     raise ValueError(f"Distance {name} not recognized.")
@@ -76,7 +237,17 @@ distance_names = [
     # "Adaptive__Euclidean__mad_or_cmad",
     "Adaptive__Manhattan__mad_or_cmad",
     #"Info__Linear__Manhattan__mad_or_cmad",
+    "Adaptive__Linear__Manhattan__mad_or_cmad__useall",
+    "Adaptive__MLP2__Manhattan__mad_or_cmad__useall",
+    #"Adaptive__MS__Manhattan__mad_or_cmad",
+    #"Adaptive__MS2__Manhattan__mad_or_cmad__Extend",
+    "Info__Linear__Manhattan__mad_or_cmad__useall",
     #"Info__Linear__Manhattan__mad_or_cmad__Subset",
+    #"Info__MS__Manhattan__mad_or_cmad",
+    "Info__MS2__Manhattan__mad_or_cmad__Extend__useall",
+    "Info__MLP2__Manhattan__mad_or_cmad__Extend__useall",
+    "Info__Linear__Manhattan__mad_or_cmad__Extend__useall",
+    "Adaptive__Linear__Manhattan__mad_or_cmad__Extend__useall",
 ]
 
 # test
@@ -134,8 +305,10 @@ for i_rep in range(n_rep):
         {"noisy": True, "frac_error": 0.1},
     ]:
         problem = slad.TumorErrorProblem(**kwargs)
-        pop_size = 1000
-        max_total_sim = 250000
+        pop_size = 500
+        max_total_sim = 150000
+        #pop_size = 1000
+        #max_total_sim = 250000
         #pop_size = 200
         #max_total_sim = 50000
 
