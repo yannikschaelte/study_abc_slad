@@ -134,10 +134,12 @@ for i_rep in range(n_rep):
         {"noisy": True, "frac_error": 0.1},
     ]:
         problem = slad.TumorErrorProblem(**kwargs)
-        pop_size = 1000
-        max_total_sim = 250000
-        pop_size = 200
-        max_total_sim = 50000
+        pop_size = 500
+        max_total_sim = 150000
+        #pop_size = 1000
+        #max_total_sim = 250000
+        #pop_size = 200
+        #max_total_sim = 50000
 
         model = problem.get_model()
         prior = problem.get_prior()
