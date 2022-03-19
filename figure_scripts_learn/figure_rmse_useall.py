@@ -79,7 +79,7 @@ def create_vals(problem_type):
     for i_dist, distance_name in enumerate(distance_names):
         for i_rep in range(n_rep):
             h = pyabc.History(
-                f"sqlite:///data_learn/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
+                f"sqlite:///data_learn_useall/{problem.get_id()}_{i_rep}/db_{distance_name}.db",
                 create=False)
 
             df, w = h.get_distribution(t=h.max_t)
@@ -91,15 +91,30 @@ def create_vals(problem_type):
 
     means = np.mean(vals, axis=2)
     stds = np.std(vals, axis=2)
-    #means = np.median(vals, axis=2)
 
-    #with open(pickle_file, "wb") as f:
-    #    pickle.dump((means, stds, gt_par), f)
+    # median as a more robust measure because values are partly heavily skewed
+    means = np.median(vals, axis=2)
+    stds = np.full_like(means, fill_value=np.nan)
+    for i_dist in range(means.shape[0]):
+        for i_par in range(means.shape[1]):
+            stds[i_dist, i_par] = np.median(np.abs(vals[i_dist, i_par, :] - np.median(vals[i_dist, i_par, :])))
+
+    with open(pickle_file, "wb") as f:
+        pickle.dump((means, stds, gt_par), f)
 
     return means, stds, gt_par
 
 
-def plot_rmse(problem_type, log: bool, axes, ylabels: bool, width: float):
+def short_exp_s(val):
+    s = f"{val:.1e}"
+    return s
+    s1, s2 = s.split("e")
+    if s2[1] == "0":
+        s2 = s2[0] + s2[2:]
+    return s1 + "e" + s2
+
+
+def plot_rmse(problem_type, log: bool, axes, ylabels: bool):
     print(problem_type)
     means, stds, gt_par = create_vals(problem_type)
     n_par = len(gt_par)
@@ -113,7 +128,7 @@ def plot_rmse(problem_type, log: bool, axes, ylabels: bool, width: float):
             ax.set_yticklabels([
                 C.distance_labels_short_learn[dname] for dname in distance_names],
                 fontdict={"fontsize": fontsize_small})
-            ax.xaxis.set_ticks_position("none")
+            #ax.xaxis.set_ticks_position("none")
         else:
             ax.set_yticks([])
 
@@ -138,7 +153,7 @@ def plot_rmse(problem_type, log: bool, axes, ylabels: bool, width: float):
                 pos_x = means[i_dist, i_par] + (1  + 1 / max_val)
             ax.text(max_val * 0.99,
                     i_dist,
-                    f"{means[i_dist, i_par]:.1e}",
+                    short_exp_s(means[i_dist, i_par]),
                     fontdict={"fontsize": fontsize_small},
                     verticalalignment="center",#"bottom" if i == 0 else "top",
                     horizontalalignment="right")
@@ -154,6 +169,7 @@ def plot_rmse(problem_type, log: bool, axes, ylabels: bool, width: float):
 
         plt.setp(ax.get_xticklabels(), fontsize=6)
         plt.setp(ax.get_xminorticklabels(), visible=False)
+        plt.setp(ax.get_xmajorticklabels(), visible=True)
 
     # fig.suptitle(problem_labels[problem_type])
     axes[0].text(
@@ -161,20 +177,23 @@ def plot_rmse(problem_type, log: bool, axes, ylabels: bool, width: float):
         horizontalalignment="left", verticalalignment="bottom",
         transform=axes[0].transAxes, fontsize=12)
 
-width_ratios = [3.5, 2, 8, 5.5, 8, 5.5]#, 3.5]
 arr_cols = [2, 1, 4, 3, 4, 3]#, 1]
 fig, axes = plt.subplots(
     nrows=1, ncols=sum(arr_cols),
-    figsize=(16, len(distance_names) / 2.5), constrained_layout=True)
+    figsize=(14, len(distance_names) / 2.5),
+    #constrained_layout=True,
+)
 
 for i, (problem_type, cols) in enumerate(zip(problem_types, arr_cols)):
     axes_for_problem = axes[sum(arr_cols[:i]):sum(arr_cols[:i+1])]
-    plot_rmse(problem_type, log=True, axes=axes_for_problem, ylabels=i==0,
-              width = width_ratios[i])
+    plot_rmse(
+        problem_type, log=True, axes=axes_for_problem, ylabels=i==0,
+    )
 
-# fig.tight_layout()
+#fig.subplots_adjust(hspace=0.01)
+#fig.tight_layout()
 
 # fig.suptitle("RMSE")
 
 for fmt in ["pdf", "png"]:
-    plt.savefig(f"figures_learn/figure_rmse.{fmt}", format=fmt, dpi=200)
+    plt.savefig(f"figures_learn/figure_rmse_useall.{fmt}", format=fmt, dpi=200)
