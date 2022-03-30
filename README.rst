@@ -2,7 +2,7 @@ Study on informative distance weights and summary statistics in ABC
 ===================================================================
 
 This is the code underlying the study on ABC statistic learning and adaptive distance weight calculation, for the manuscript
-"Informative and adaptive distances and summary statistics in sequential approximate Bayesian computation" by Yannik Schälte, Jan Hasenauer, 2022. Both analysis and figure generation code are included, facilitating reproducibility with likely slight modifications (some parts are specific to the employed hardware).
+"Informative and adaptive distances and summary statistics in sequential approximate Bayesian computation" by Yannik Schälte, Jan Hasenauer, 2022 (https://www.biorxiv.org/content/10.1101/2022.03.18.484896). Both analysis and figure generation code are included, facilitating reproducibility with likely slight modifications (some parts are specific to the employed hardware).
 
 Installation
 ------------
